@@ -1,0 +1,2216 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EPX TOPIK - UBT Examination System</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Montserrat:wght@700;900&family=Share+Tech+Mono&display=swap');
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      user-select: none;
+      transition: filter 0.2s ease;
+    }
+    .brand-font {
+      font-family: 'Montserrat', sans-serif;
+    }
+    .digital-clock {
+      font-family: 'Share Tech Mono', monospace;
+    }
+    .ubt-bg {
+      background-color: #00a2e8;
+    }
+    .pulse-glow {
+      animation: pulse-ring 1.8s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+    }
+    @keyframes pulse-ring {
+      0% { transform: scale(0.95); opacity: 0.9; }
+      50% { transform: scale(1.1); opacity: 0.4; }
+      100% { transform: scale(0.95); opacity: 0.9; }
+    }
+    .scan-line {
+      animation: scanning 2s linear infinite;
+    }
+    @keyframes scanning {
+      0% { top: 0%; opacity: 0.8; }
+      50% { top: 95%; opacity: 0.8; }
+      100% { top: 0%; opacity: 0.8; }
+    }
+    .eq-bar {
+      animation: bounce-eq 0.8s ease-in-out infinite alternate;
+    }
+    @keyframes bounce-eq {
+      0% { height: 15%; }
+      100% { height: 95%; }
+    }
+    /* Waiting screen signal bars animation */
+    .signal-bar {
+      animation: signal-bounce 1.2s ease-in-out infinite alternate;
+    }
+    @keyframes signal-bounce {
+      0% { transform: scaleY(0.4); opacity: 0.5; }
+      100% { transform: scaleY(1); opacity: 1; }
+    }
+  </style>
+</head>
+<body id="app-body" class="bg-[#4b5563] text-slate-800 antialiased min-h-screen flex flex-col justify-center">
+
+  <!-- ========================================================================= -->
+  <!-- STEP 0: LAB PC LOGIN (EPX TOPIK LAB - /lab/login) -->
+  <!-- ========================================================================= -->
+  <section id="step-0-screen" class="min-h-screen flex flex-col items-center justify-center bg-[#f4f7fa] p-4">
+    <div class="bg-white rounded-2xl shadow-xl max-w-sm w-full p-8 text-center border border-slate-100">
+      <!-- EPX Logo -->
+      <div class="w-16 h-16 bg-gradient-to-tr from-blue-700 to-indigo-600 rounded-2xl mx-auto flex items-center justify-center text-white brand-font font-black text-2xl shadow-lg mb-4 tracking-wider">
+        EPX
+      </div>
+      <h1 class="text-xl font-black text-slate-800 tracking-tight brand-font">EPX TOPIK LAB</h1>
+      <p class="text-xs text-slate-500 mt-1 mb-6 font-medium">Sign in to your lab PC</p>
+
+      <form onsubmit="handleLabLogin(event)" class="space-y-4 text-left">
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Username</label>
+          <input type="text" id="lab-username" value="EPX_HKA01" required
+            class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition font-mono">
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Password</label>
+          <input type="password" id="lab-password" value="••••••" required
+            class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition font-mono">
+        </div>
+
+        <button type="submit" 
+          class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white font-bold rounded-lg text-sm shadow-md transition duration-150 mt-2">
+          Sign In
+        </button>
+      </form>
+
+      <div class="mt-6 pt-4 border-t border-slate-100 space-y-2 text-[11px] text-slate-400 font-medium">
+        <div class="flex items-center justify-center gap-2 text-[11px]">
+          <a href="login.html" class="text-slate-600 hover:text-blue-600 font-bold hover:underline">🔑 Sign In</a>
+          <span>&bull;</span>
+          <a href="admin.html" target="_blank" class="text-blue-600 hover:text-blue-800 font-bold hover:underline">👨‍🏫 Teacher Admin ↗</a>
+          <span>&bull;</span>
+          <a href="developer.html" target="_blank" class="text-purple-600 hover:text-purple-800 font-bold hover:underline">⚙️ Developer ↗</a>
+        </div>
+        <div>
+          Developed by <span class="text-slate-600 font-semibold">www.epxtopik.com</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ========================================================================= -->
+  <!-- STEP 0B: LAB WAITING SCREEN (/lab/waiting - Exact replica of user screenshot!) -->
+  <!-- ========================================================================= -->
+  <section id="step-0b-waiting-screen" class="hidden min-h-screen bg-[#f4f7fb] flex flex-col justify-between p-6">
+    
+    <!-- Top Bar Info & Admin Test Trigger -->
+    <div class="flex justify-between items-center w-full max-w-4xl mx-auto">
+      <div class="text-xs font-bold tracking-wider text-slate-400 brand-font uppercase flex items-center gap-2">
+        <span>EPX TOPIK LAB — WAITING</span>
+        <a href="admin.html" target="_blank" class="ml-2 text-[11px] text-blue-600 font-semibold hover:underline bg-blue-50 px-2.5 py-0.5 rounded-full border border-blue-200">Open Teacher Admin ↗</a>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></span>
+        <span class="text-xs font-bold text-slate-600 font-mono" id="waiting-sync-status">Awaiting Admin Start...</span>
+        <!-- Optional direct test override button -->
+        <button onclick="triggerStartExamFromAdmin()" title="Click to simulate starting from Admin"
+          class="ml-3 px-3 py-1 bg-blue-50 hover:bg-blue-100 border border-blue-300 text-blue-700 rounded-full text-[11px] font-bold shadow-sm transition active:scale-95 flex items-center gap-1">
+          <span>⚡ Admin Start (Simulate)</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Centered Card (Exact match to screenshot!) -->
+    <div class="max-w-sm w-full mx-auto bg-white rounded-3xl shadow-xl p-8 border border-slate-100 text-center my-auto">
+      
+      <!-- Logo: Stylized Colorful Triangle -->
+      <div class="w-16 h-16 mx-auto mb-3 flex items-center justify-center">
+        <svg class="w-14 h-14" viewBox="0 0 100 100" fill="none">
+          <path d="M50 15L18 75H82L50 15Z" fill="url(#epx_tri_grad)" stroke="#ffffff" stroke-width="3" stroke-linejoin="round"/>
+          <defs>
+            <linearGradient id="epx_tri_grad" x1="18" y1="15" x2="82" y2="75" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#ef4444"/>
+              <stop offset="0.5" stop-color="#f59e0b"/>
+              <stop offset="1" stop-color="#3b82f6"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+
+      <!-- Title & Academy -->
+      <h2 class="text-lg font-black text-slate-800 brand-font tracking-tight">EPX-TOPIK</h2>
+      <p class="text-xs text-slate-500 font-medium mt-0.5 mb-5">Hana Korean Academy</p>
+
+      <!-- Waiting Status -->
+      <div class="mb-3">
+        <span id="waiting-status-label" class="text-base font-extrabold text-[#f59e0b] tracking-wide">Waiting</span>
+      </div>
+
+      <!-- Blue Signal / Equalizer Animated Bars (Exact match to screenshot!) -->
+      <div class="flex justify-center items-end gap-1.5 h-6 mb-6">
+        <span class="w-1.5 bg-[#38bdf8] rounded-full signal-bar" style="height: 10px; animation-delay: 0.1s;"></span>
+        <span class="w-1.5 bg-[#38bdf8] rounded-full signal-bar" style="height: 14px; animation-delay: 0.25s;"></span>
+        <span class="w-1.5 bg-[#38bdf8] rounded-full signal-bar" style="height: 18px; animation-delay: 0.4s;"></span>
+        <span class="w-1.5 bg-[#38bdf8] rounded-full signal-bar" style="height: 22px; animation-delay: 0.55s;"></span>
+        <span class="w-1.5 bg-[#0284c7] rounded-full signal-bar" style="height: 26px; animation-delay: 0.7s;"></span>
+      </div>
+
+      <!-- Info Box (PC Name, Shutdown, Software Active) -->
+      <div class="bg-slate-50 border border-slate-100 rounded-2xl p-4 text-xs space-y-2 text-left">
+        <div class="flex justify-between items-center">
+          <span class="text-slate-500 font-medium">PC Name</span>
+          <span class="font-bold text-slate-800 font-mono" id="waiting-pc-name">EPX_HKA01</span>
+        </div>
+        <div class="flex justify-between items-center">
+          <span class="text-slate-500 font-medium">Shutdown PC</span>
+          <span class="font-bold text-slate-800 font-mono">0</span>
+        </div>
+        <div class="flex justify-between items-center">
+          <span class="text-slate-500 font-medium">Software</span>
+          <span class="font-bold text-emerald-600 flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 inline-block animate-ping"></span>
+            Active
+          </span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Bottom Footer -->
+    <div class="text-center text-[11px] text-slate-400 font-sans">
+      Developed by <a href="#" class="text-slate-500 font-semibold hover:underline">www.epxtopik.com</a> | Contact: <span class="font-mono text-slate-500 font-medium">+94-721122577</span>
+    </div>
+
+  </section>
+
+
+  <!-- ========================================================================= -->
+  <!-- STEP 1: UBT CANDIDATE LOGIN (EPX TOPIK UBT - /ubt/screen1) -->
+  <!-- ========================================================================= -->
+  <section id="step-1-screen" class="hidden min-h-screen ubt-bg flex flex-col justify-between p-6 text-white relative">
+    <!-- Top Bar with Headphone Icon -->
+    <div class="flex justify-between items-center w-full max-w-4xl mx-auto">
+      <div class="text-xs font-bold tracking-widest uppercase opacity-80 brand-font">EPX TOPIK UBT SYSTEM</div>
+      <div class="p-2 bg-white/20 rounded-full hover:bg-white/30 cursor-pointer transition">
+        <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M10 2a7 7 0 00-7 7v4a3 3 0 003 3h1a1 1 0 001-1v-4a1 1 0 00-1-1H5V9a5 5 0 0110 0v2h-2a1 1 0 00-1 1v4a1 1 0 001 1h1a3 3 0 003-3V9a7 7 0 00-7-7z" clip-rule="evenodd"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Center Card -->
+    <div class="max-w-md w-full mx-auto bg-white text-slate-800 rounded-3xl shadow-2xl p-8 border border-white/40">
+      <!-- UBT Cloud Logo -->
+      <div class="flex flex-col items-center mb-6">
+        <div class="w-20 h-20 rounded-full bg-sky-100 flex items-center justify-center text-[#00a2e8] mb-2 shadow-inner">
+          <svg class="w-12 h-12" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM19 18H6c-2.21 0-4-1.79-4-4 0-2.05 1.53-3.76 3.56-3.97l1.07-.11.5-.95C8.08 7.14 9.94 6 12 6c2.62 0 4.88 1.86 5.39 4.43l.3 1.5 1.53.11c1.56.1 2.78 1.41 2.78 2.96 0 1.65-1.35 3-3 3z"/>
+          </svg>
+        </div>
+        <div class="text-3xl font-black tracking-widest text-[#00a2e8] brand-font">UBT</div>
+        <div class="text-xs font-bold text-slate-400 tracking-wider mt-0.5">EPX TOPIK EXAMINATION</div>
+      </div>
+
+      <form onsubmit="handleUbtLogin(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Your Test number</label>
+          <input type="text" id="candidate-test-num" value="0152022C50812316" required
+            class="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-xl text-sm font-bold font-mono focus:ring-2 focus:ring-[#00a2e8] outline-none">
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Date of birth (YYYYMMDD)</label>
+          <input type="text" id="candidate-dob" value="19900822" required
+            class="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-xl text-sm font-bold font-mono focus:ring-2 focus:ring-[#00a2e8] outline-none">
+        </div>
+
+        <button type="submit"
+          class="w-full py-3.5 bg-[#00a2e8] hover:bg-[#0091d1] active:scale-[0.98] text-white font-bold rounded-xl text-sm shadow-lg transition duration-150 mt-2">
+          Log-in
+        </button>
+      </form>
+    </div>
+
+    <!-- Footer -->
+    <div class="text-center text-xs opacity-75 font-mono">
+      EPX TOPIK UBT • Version 2.1.0 • Copyright © 2026 EPX TOPIK
+    </div>
+  </section>
+
+
+  <!-- ========================================================================= -->
+  <!-- STEP 2: VERIFICATION SCREEN (EPX TOPIK UBT - /ubt/screen2) -->
+  <!-- ========================================================================= -->
+  <section id="step-2-screen" class="hidden min-h-screen bg-slate-900 flex flex-col justify-between p-6 text-white">
+    <!-- Blue Header Banner -->
+    <div class="w-full max-w-4xl mx-auto bg-[#00a2e8] rounded-xl py-3 px-6 shadow-lg flex items-center justify-between">
+      <div class="text-sm md:text-base font-bold tracking-wide">
+        EPX TOPIK UBT 기반 응시자 확인 기능 (Candidate Verification)
+      </div>
+      <div class="bg-white/20 px-3 py-1 rounded text-xs font-mono font-semibold">
+        SEAT: <span class="text-yellow-300 font-bold">EPX_HKA01</span>
+      </div>
+    </div>
+
+    <!-- Dual Cards: Camera & Registration Photo -->
+    <div class="max-w-4xl w-full mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 my-auto">
+      <!-- Left Card: Live Camera with Facial Box -->
+      <div class="bg-slate-800 rounded-2xl p-4 border border-slate-700 shadow-2xl flex flex-col items-center">
+        <div class="text-xs font-bold text-slate-300 mb-2 flex items-center gap-2">
+          <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
+          실시간 카메라 응시자 확인 (Live Camera)
+        </div>
+
+        <div class="relative w-full aspect-[4/3] bg-black rounded-xl overflow-hidden border-2 border-slate-600 flex items-center justify-center">
+          <video id="webcam-preview" autoplay playsinline muted class="w-full h-full object-cover"></video>
+          
+          <!-- Fallback Simulated Face if no cam -->
+          <div id="simulated-face" class="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <svg class="w-48 h-48 text-slate-600 opacity-60" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
+            </svg>
+          </div>
+
+          <!-- Green Scanning Box -->
+          <div class="absolute w-44 h-56 border-2 border-emerald-400 rounded-lg pointer-events-none flex flex-col justify-between p-1.5 shadow-[0_0_15px_rgba(52,211,153,0.5)]">
+            <div class="flex justify-between">
+              <span class="w-3 h-3 border-t-2 border-l-2 border-emerald-400"></span>
+              <span class="w-3 h-3 border-t-2 border-r-2 border-emerald-400"></span>
+            </div>
+            <div class="scan-line relative w-full h-0.5 bg-emerald-400"></div>
+            <div class="flex justify-between">
+              <span class="w-3 h-3 border-b-2 border-l-2 border-emerald-400"></span>
+              <span class="w-3 h-3 border-b-2 border-r-2 border-emerald-400"></span>
+            </div>
+          </div>
+
+          <!-- Face Match Indicator -->
+          <div class="absolute bottom-2 inset-x-2 flex justify-between items-center text-[11px] px-2 py-1 bg-black/70 backdrop-blur rounded">
+            <span class="text-emerald-400 font-bold" id="face-match-status">Scanning Face...</span>
+            <span class="text-yellow-400 font-mono font-bold" id="match-percentage">98% Match</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Card: Candidate Info & Photo -->
+      <div class="bg-slate-800 rounded-2xl p-6 border border-slate-700 shadow-2xl flex flex-col justify-between">
+        <div>
+          <div class="text-xs font-bold text-slate-300 mb-3 border-b border-slate-700 pb-2">
+            응시자 등록 정보 (Registered Candidate Information)
+          </div>
+
+          <div class="flex items-center space-x-4 mb-4">
+            <div class="w-24 h-28 bg-slate-700 rounded-lg border-2 border-[#00a2e8] overflow-hidden flex items-center justify-center shadow-md">
+              <svg class="w-16 h-16 text-slate-400" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
+              </svg>
+            </div>
+            <div class="space-y-1.5 text-xs">
+              <div><span class="text-slate-400">수험번호:</span> <span class="font-bold text-yellow-300 font-mono" id="verified-test-number">0152022C50812316</span></div>
+              <div><span class="text-slate-400">성명 (Name):</span> <span class="font-bold text-white">K. A. DILSHAN PERERA</span></div>
+              <div><span class="text-slate-400">생년월일:</span> <span class="font-mono text-slate-200">1990-08-22</span></div>
+              <div><span class="text-slate-400">선택 분야:</span> <span class="font-bold text-emerald-400">제조업 (Manufacturing)</span></div>
+            </div>
+          </div>
+
+          <div class="bg-slate-900/80 p-3 rounded-lg border border-slate-700 text-[11px] text-slate-300 leading-relaxed">
+            안내: 응시자의 실시간 얼굴 사진이 등록된 수험표 사진과 일치하는지 자동으로 확인되었습니다.
+          </div>
+        </div>
+
+        <div class="mt-6">
+          <button onclick="goToBrightnessScreen()"
+            class="w-full py-3 bg-[#00a2e8] hover:bg-[#0091d1] active:scale-[0.98] text-white font-bold rounded-xl text-sm shadow-lg transition duration-150">
+            Start (확인 완료)
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Spacing -->
+    <div class="text-center text-xs text-slate-500 font-mono">
+      EPX TOPIK Biometric Verification Engine
+    </div>
+  </section>
+
+
+  <!-- ========================================================================= -->
+  <!-- STEP 3: BRIGHTNESS ADJUSTMENT (EPX TOPIK - /ubt/screen3) -->
+  <!-- ========================================================================= -->
+  <section id="step-3-screen" class="hidden min-h-screen bg-slate-200/90 flex flex-col items-center justify-center p-4">
+    <div class="bg-white rounded-lg shadow-2xl max-w-lg w-full overflow-hidden border border-slate-300">
+      <div class="bg-[#3e5f8a] text-white px-5 py-2.5 flex items-center justify-between">
+        <h2 class="text-sm font-bold tracking-wide">밝기 조절 (EPX TOPIK UBT)</h2>
+        <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 2a7 7 0 00-7 7v4a3 3 0 003 3h1a1 1 0 001-1v-4a1 1 0 00-1-1H5V9a5 5 0 0110 0v2h-2a1 1 0 00-1 1v4a1 1 0 001 1h1a3 3 0 003-3V9a7 7 0 00-7-7z" clip-rule="evenodd"/></svg>
+      </div>
+
+      <div class="p-6">
+        <div class="w-full h-24 rounded border border-slate-400 mb-4 shadow-inner" 
+             style="background: linear-gradient(to right, #000000, #404040, #808080, #c0c0c0, #ffffff);">
+        </div>
+        <p class="text-[11px] text-slate-600 leading-relaxed text-center mb-5">
+          시험에 앞서 단말기의 화면 밝기, 음량 크기를 조정하실 수 있습니다.<br>
+          주변 환경 및 선호도에 따라 <span class="text-blue-600 font-bold">최적의 밝기로 조절</span>해 주세요.
+        </p>
+
+        <div class="flex items-center space-x-3 px-4 mb-6">
+          <span class="text-slate-400 text-xs">🔅</span>
+          <input type="range" id="brightness-slider" min="60" max="130" value="100" oninput="adjustBrightness(this.value)"
+            class="flex-1 h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[#00a2e8]">
+          <span class="text-slate-600 text-xs">🔆</span>
+        </div>
+
+        <div class="flex justify-end">
+          <button onclick="goToVolumeScreen()" class="bg-[#00a2e8] hover:bg-[#0091d1] text-white font-bold px-8 py-2 rounded text-xs shadow transition active:scale-95">
+            Next
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ========================================================================= -->
+  <!-- STEP 4: VOLUME ADJUSTMENT (EPX TOPIK - /ubt/screen4) -->
+  <!-- ========================================================================= -->
+  <section id="step-4-screen" class="hidden min-h-screen bg-slate-200/90 flex flex-col items-center justify-center p-4">
+    <div class="bg-white rounded-lg shadow-2xl max-w-lg w-full overflow-hidden border border-slate-300">
+      <div class="bg-[#3e5f8a] text-white px-5 py-2.5 flex items-center justify-between">
+        <h2 class="text-sm font-bold tracking-wide">음량 조절 (EPX TOPIK UBT)</h2>
+        <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 2a7 7 0 00-7 7v4a3 3 0 003 3h1a1 1 0 001-1v-4a1 1 0 00-1-1H5V9a5 5 0 0110 0v2h-2a1 1 0 00-1 1v4a1 1 0 001 1h1a3 3 0 003-3V9a7 7 0 00-7-7z" clip-rule="evenodd"/></svg>
+      </div>
+
+      <div class="p-6">
+        <div class="w-full bg-gradient-to-b from-blue-100 to-blue-200 rounded-lg p-5 flex flex-col items-center justify-center relative overflow-hidden mb-4 border border-blue-300">
+          <div class="absolute bottom-1 inset-x-4 flex justify-between items-end h-8 opacity-40">
+            <span class="w-2 bg-blue-600 rounded-t eq-bar" style="animation-delay: 0.1s;"></span>
+            <span class="w-2 bg-blue-600 rounded-t eq-bar" style="animation-delay: 0.4s;"></span>
+            <span class="w-2 bg-blue-600 rounded-t eq-bar" style="animation-delay: 0.2s;"></span>
+            <span class="w-2 bg-blue-600 rounded-t eq-bar" style="animation-delay: 0.6s;"></span>
+            <span class="w-2 bg-blue-600 rounded-t eq-bar" style="animation-delay: 0.3s;"></span>
+            <span class="w-2 bg-blue-600 rounded-t eq-bar" style="animation-delay: 0.5s;"></span>
+            <span class="w-2 bg-blue-600 rounded-t eq-bar" style="animation-delay: 0.2s;"></span>
+            <span class="w-2 bg-blue-600 rounded-t eq-bar" style="animation-delay: 0.7s;"></span>
+          </div>
+
+          <button id="step4-play-btn" onclick="playStep4TestAudio()" class="w-14 h-14 bg-white rounded-full flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition z-10 text-[#00a2e8]">
+            <svg class="w-7 h-7 ml-1" fill="currentColor" viewBox="0 0 20 20"><path d="M4.5 3.5l11 6.5-11 6.5z"/></svg>
+          </button>
+          <span class="text-[11px] font-bold text-slate-700 mt-2 z-10" id="step4-play-label">소리 시험 재생 (Test Tone)</span>
+        </div>
+
+        <p class="text-[11px] text-slate-600 leading-relaxed text-center mb-5">
+          이어폰을 착용한 후 시험 안내 음성이 잘 들리는지 확인하십시오.<br>
+          소리가 너무 작거나 크면 <span class="text-blue-600 font-bold">슬라이더를 움직여 알맞게 조절</span>하십시오.
+        </p>
+
+        <div class="flex items-center space-x-3 px-4 mb-6">
+          <span class="text-slate-400 text-xs">🔈</span>
+          <input type="range" id="volume-slider" min="0" max="100" value="75" oninput="adjustVolume(this.value)"
+            class="flex-1 h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[#00a2e8]">
+          <span class="text-slate-600 text-xs">🔊</span>
+        </div>
+
+        <div class="flex justify-between items-center">
+          <button onclick="goToBrightnessScreen()" class="text-slate-500 hover:text-slate-800 text-xs font-semibold px-4 py-2">
+            Previous
+          </button>
+          <button onclick="goToTutorialScreen()" class="bg-[#00a2e8] hover:bg-[#0091d1] text-white font-bold px-8 py-2 rounded text-xs shadow transition active:scale-95">
+            Next
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ========================================================================= -->
+  <!-- STEP 5: TUTORIAL MODAL (EPX TOPIK - /ubt/screen5) -->
+  <!-- ========================================================================= -->
+  <section id="step-5-tutorial-screen" class="hidden min-h-screen bg-slate-950 flex flex-col justify-between p-4 md:p-6 text-white relative">
+    <!-- Top Bar with Brand & SKIP Button -->
+    <div class="flex justify-between items-center w-full max-w-4xl mx-auto">
+      <div class="flex items-center gap-2">
+        <span class="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse"></span>
+        <span class="text-xs font-bold tracking-widest uppercase brand-font text-slate-300">EPX TOPIK UBT — TUTORIAL VIDEO</span>
+      </div>
+      <button onclick="skipTutorial()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs px-5 py-2 rounded-full border border-blue-400/40 shadow-lg tracking-wider transition active:scale-95 flex items-center gap-1.5">
+        <span>SKIP</span>
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 5l7 7-7 7M5 5l7 7-7 7"/></svg>
+      </button>
+    </div>
+
+        <!-- Center Video Player Container (With Native HD Video + YouTube Switcher) -->
+    <div class="max-w-4xl w-full mx-auto my-auto">
+      <!-- Player Mode Switcher Bar -->
+      <div class="flex flex-wrap items-center justify-between gap-2 mb-2 px-1">
+        <div class="flex items-center gap-2">
+          <button id="btn-mode-local" onclick="switchTutorialMode('local')" class="px-3 py-1.5 text-xs rounded-lg bg-blue-600 text-white font-bold transition flex items-center gap-1.5 shadow cursor-pointer">
+            <span>🎬 HD Video Player (Local Fast)</span>
+          </button>
+          <button id="btn-mode-yt" onclick="switchTutorialMode('youtube')" class="px-3 py-1.5 text-xs rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold transition flex items-center gap-1.5 cursor-pointer">
+            <span>🔴 YouTube Stream</span>
+          </button>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="openTutorialPopup()" class="px-3 py-1.5 text-xs rounded-lg bg-slate-800 hover:bg-slate-700 text-blue-300 font-semibold transition flex items-center gap-1 cursor-pointer" title="Open YouTube in a popup window">
+            <span>↗ Popout Window</span>
+          </button>
+          <a href="https://youtu.be/VG4WT495zKE" target="_blank" class="px-3 py-1.5 text-xs rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold transition flex items-center gap-1">
+            <span>YouTube.com ↗</span>
+          </a>
+        </div>
+      </div>
+
+      <div id="video-player-container" class="bg-black rounded-2xl overflow-hidden border border-slate-800 shadow-2xl relative aspect-video flex items-center justify-center group">
+        
+        <!-- Thumbnail & Play Overlay (Shown initially) -->
+        <div id="video-thumbnail-overlay" class="absolute inset-0 z-20 flex flex-col justify-between p-6 bg-cover bg-center transition duration-300"
+             style="background-image: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.25) 50%, rgba(0,0,0,0.75) 100%), url('https://i.ytimg.com/vi/VG4WT495zKE/hqdefault.jpg');">
+          
+          <!-- Top info bar inside overlay -->
+          <div class="flex items-center justify-between">
+            <span class="bg-red-600 text-white font-bold text-[11px] px-3 py-1 rounded-full uppercase tracking-wider shadow">
+              EPX TOPIK Tutorial
+            </span>
+            <span class="bg-black/60 text-white text-xs font-semibold px-3 py-1.5 rounded-lg border border-white/20 shadow">
+              Duration: Full 40 Questions Guide
+            </span>
+          </div>
+
+          <!-- Big Red Play Button in Center -->
+          <div class="my-auto text-center flex flex-col items-center">
+            <button onclick="startTutorialVideoPlay('local')" 
+              class="w-20 h-14 bg-red-600 hover:bg-red-500 active:scale-95 text-white rounded-2xl flex items-center justify-center shadow-2xl transition duration-200 group-hover:scale-110 mb-3 cursor-pointer">
+              <svg class="w-8 h-8 ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+            </button>
+            <h3 class="text-base md:text-lg font-bold text-white tracking-wide shadow-sm">
+              NEW HRDK UBT Exam Paper — 40 Questions & Answers
+            </h3>
+            <p class="text-xs text-slate-300 mt-1">
+              Click to Play Tutorial Video (වීඩියෝව වාදනය කිරීමට ක්ලික් කරන්න)
+            </p>
+          </div>
+
+          <!-- Bottom bar inside overlay -->
+          <div class="text-[11px] text-slate-400">
+            EPX TOPIK • Korean Language Examination Guide
+          </div>
+        </div>
+
+        <!-- 1. Native HTML5 Video Player (Plays local tutorial.mp4 - 100% reliable) -->
+        <video id="tutorial-native-video" 
+          class="w-full h-full aspect-video hidden object-contain bg-black z-10" 
+          controls 
+          preload="auto"
+          playsinline>
+          <source src="tutorial.mp4" type="video/mp4">
+          Your browser does not support the video tag.
+        </video>
+
+        <!-- 2. YouTube iframe Player -->
+        <iframe id="tutorial-video-iframe" 
+          class="w-full h-full aspect-video hidden z-10" 
+          style="background-color: #000000;"
+          src="" 
+          title="EPX TOPIK UBT Tutorial Video" 
+          frameborder="0" 
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+          allowfullscreen>
+        </iframe>
+      </div>
+
+      <!-- Quick Helper Note Below Video -->
+      <div class="flex items-center justify-between text-[11px] text-slate-400 mt-2 px-2">
+        <span class="flex items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 inline-block animate-pulse"></span>
+          <span>HD Video Mode Active: Seamless playback guaranteed without browser blocks.</span>
+        </span>
+        <button onclick="startTutorialVideoPlay('local', true)" class="text-slate-400 hover:text-white transition cursor-pointer">🔄 Replay Video</button>
+      </div>
+    </div>
+
+    <!-- Bottom Instruction Bar & Continue Button -->
+    <div class="w-full max-w-4xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3 bg-slate-900/80 border border-slate-800 rounded-xl px-5 py-3">
+      <p class="text-xs text-slate-400 text-center md:text-left">
+        비디오를 시청하거나 오른쪽 상단의 <span class="text-blue-400 font-bold">SKIP</span> 버튼을 눌러 다음 단계로 진행하십시오.
+      </p>
+      <button onclick="skipTutorial()" class="bg-[#00a2e8] hover:bg-[#0091d1] text-white font-bold text-xs px-6 py-2.5 rounded-lg shadow-lg transition active:scale-95 shrink-0">
+        다음 단계로 이동 (Continue) &gt;
+      </button>
+    </div>
+  </section>
+
+  <!-- ========================================================================= -->
+  <!-- STEP 6: EXAMINEE'S INFORMATION & DOWNLOAD (EPX TOPIK - /ubt/screen6) -->
+  <!-- ========================================================================= -->
+  <section id="step-6-examinee-screen" class="hidden min-h-screen bg-slate-100 flex flex-col justify-between p-4">
+    <div class="bg-white px-6 py-2 border-b border-slate-200 flex justify-between items-center shadow-sm">
+      <div class="text-xs font-bold text-slate-700 brand-font">
+        TEST CENTER: <span class="text-blue-600 font-extrabold">EPX CENTER(ROOM2)</span>
+      </div>
+      <div class="text-xs font-mono font-bold text-slate-500">
+        TIME: 10:00 AM ~ 10:50 AM
+      </div>
+    </div>
+
+    <div class="max-w-2xl w-full mx-auto bg-white rounded-xl shadow-xl border border-slate-200 overflow-hidden my-auto p-6 md:p-8">
+      <h2 class="text-base font-bold text-slate-800 border-b border-slate-200 pb-2 mb-4">
+        Examinee's Information (응시자 수험 정보)
+      </h2>
+
+      <div class="flex flex-col sm:flex-row items-center sm:items-start gap-6">
+        <div class="w-32 h-36 bg-slate-200 border border-slate-300 rounded flex items-center justify-center text-slate-400 shrink-0 shadow-inner">
+          <svg class="w-20 h-20" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
+          </svg>
+        </div>
+
+        <div class="flex-1 w-full space-y-2 text-xs">
+          <div class="flex justify-between border-b border-slate-100 pb-1">
+            <span class="text-slate-500">Test number:</span>
+            <span class="font-bold text-slate-800 font-mono">0152022C50812316</span>
+          </div>
+          <div class="flex justify-between border-b border-slate-100 pb-1">
+            <span class="text-slate-500">Name:</span>
+            <span class="font-bold text-slate-800">K. A. DILSHAN PERERA</span>
+          </div>
+          <div class="flex justify-between border-b border-slate-100 pb-1">
+            <span class="text-slate-500">Date of birth:</span>
+            <span class="font-bold text-slate-800 font-mono">1990-08-22</span>
+          </div>
+          <div class="flex justify-between border-b border-slate-100 pb-1">
+            <span class="text-slate-500">Industry:</span>
+            <span class="font-bold text-blue-600">제조업 (Manufacturing)</span>
+          </div>
+          <div class="flex justify-between pb-1">
+            <span class="text-slate-500">Seat number:</span>
+            <span class="font-bold text-slate-800 font-mono">EPX_HKA01</span>
+          </div>
+        </div>
+      </div>
+
+      <div id="download-progress-container" class="mt-6 hidden bg-slate-50 p-3 rounded-lg border border-slate-200">
+        <div class="flex justify-between text-xs text-slate-600 font-semibold mb-1">
+          <span>시험 문제 데이터 패키지 다운로드 중 (Downloading Exam Data)...</span>
+          <span id="download-percent" class="font-mono text-blue-600 font-bold">0%</span>
+        </div>
+        <div class="w-full bg-slate-200 h-2.5 rounded-full overflow-hidden">
+          <div id="download-bar" class="bg-blue-600 h-full w-0 transition-all duration-150"></div>
+        </div>
+      </div>
+
+      <div class="mt-8 flex justify-center">
+        <button id="btn-exam-download" onclick="startExamPackageDownload()"
+          class="bg-[#e91e63] hover:bg-[#d81557] active:scale-95 text-white font-bold text-xs px-8 py-3 rounded-lg shadow-md transition tracking-wider flex items-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+          Download (문제 다운로드)
+        </button>
+
+        <button id="btn-start-the-exam" onclick="goToExamMainGrid()"
+          class="hidden bg-[#00a2e8] hover:bg-[#0091d1] active:scale-95 text-white font-bold text-sm px-10 py-3 rounded-lg shadow-lg transition tracking-wider flex items-center gap-2 pulse-glow">
+          Start the exam (시험 시작) &gt;
+        </button>
+      </div>
+    </div>
+
+    <div class="text-center text-xs text-slate-400">
+      EPX TOPIK Examination Management Center
+    </div>
+  </section>
+
+
+  <!-- ========================================================================= -->
+    <!-- ========================================================================= -->
+  <!-- STEP 7: OFFICIAL UBT EXAM SCREEN (EPX TOPIK - /ubt/exam) -->
+  <!-- Authentic Replica matching the 5 Screenshots from mnj-topik.com/ubt/exam -->
+  <!-- ========================================================================= -->
+  <section id="step-7-exam-container" class="hidden min-h-screen bg-[#48525e] flex flex-col items-center justify-center p-4 md:p-6 select-none">
+    
+    <!-- Centered White Exam Window Card with Blue Border (Exact match to Screenshots 1-5) -->
+    <div class="max-w-5xl w-full bg-white rounded-xl shadow-2xl border-2 border-[#2b6cb0] overflow-hidden flex flex-col my-auto">
+      
+      <!-- Top Exam Header Card (Images 1-5) -->
+      <div class="px-6 py-3.5 border-b border-slate-200 flex items-center justify-between bg-white">
+        <!-- Left: Candidate Hanbok Avatar & Info -->
+        <div class="flex items-center gap-4">
+          <!-- Hanbok Royal Avatar -->
+          <div class="w-14 h-14 rounded-full overflow-hidden border-2 border-slate-200 shadow-sm shrink-0 flex items-center justify-center bg-[#991b1b]">
+            <svg class="w-14 h-14" viewBox="0 0 100 100" fill="none">
+              <circle cx="50" cy="50" r="50" fill="#991b1b"/>
+              <!-- Hanbok Robe (Red Royal Robe) -->
+              <path d="M12 95C12 65 35 55 50 55C65 55 88 65 88 95H12Z" fill="#b91c1c"/>
+              <circle cx="50" cy="74" r="14" fill="#d97706" stroke="#fef08a" stroke-width="2"/>
+              <!-- Dongjeong White Collar -->
+              <path d="M42 55L50 68L58 55" stroke="#ffffff" stroke-width="4" stroke-linecap="round"/>
+              <!-- Head & Neck -->
+              <rect x="44" y="42" width="12" height="15" fill="#fcd34d"/>
+              <ellipse cx="50" cy="40" rx="16" ry="18" fill="#fcd34d"/>
+              <!-- Facial features -->
+              <circle cx="44" cy="38" r="1.5" fill="#1f2937"/>
+              <circle cx="56" cy="38" r="1.5" fill="#1f2937"/>
+              <path d="M47 46C49 48 51 48 53 46" stroke="#991b1b" stroke-width="1.5" stroke-linecap="round"/>
+              <!-- Korean Official Hat (Ikseongwan) -->
+              <path d="M30 32C30 18 42 12 50 12C58 12 70 18 70 32H30Z" fill="#111827"/>
+              <path d="M44 12V6C44 4 47 3 50 3C53 3 56 4 56 6V12" fill="#111827"/>
+              <rect x="26" y="30" width="48" height="4" rx="2" fill="#1f2937"/>
+            </svg>
+          </div>
+
+          <!-- Info Matrix (Exact match to Screenshots) -->
+          <div class="space-y-1 text-xs">
+            <div class="flex items-center gap-6">
+              <span class="font-bold text-slate-800 font-mono tracking-tight" id="exam-cand-code">HKA-ex-22-4ca2e793b4</span>
+              <span class="text-slate-500 font-mono text-[11px]" id="exam-session-hash">4842fdb27ada50f4</span>
+              <span class="font-bold text-slate-800 font-mono text-xs" id="exam-seat-code">EPX_HKA01</span>
+            </div>
+            <div class="flex items-center gap-6 text-[11px]">
+              <span class="font-bold text-slate-700 tracking-wide">EPX CENTER(ROOM2)</span>
+              <div class="flex items-center border border-slate-200 rounded px-2.5 py-0.5 bg-slate-50 gap-2">
+                <span class="text-slate-400">Total</span>
+                <span class="font-bold text-slate-800 font-mono">40</span>
+              </div>
+              <div class="flex items-center border border-slate-200 rounded px-2.5 py-0.5 bg-slate-50 gap-2">
+                <span class="text-slate-400">Remaining</span>
+                <span class="font-bold text-[#2b6cb0] font-mono" id="exam-remaining-count">40</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Digital Timer Clock (Screenshots 1-5) -->
+        <div class="pl-6 border-l border-slate-200 flex items-center">
+          <div id="digital-exam-timer" class="digital-clock text-4xl font-extrabold text-slate-800 tracking-wider">
+            49:58
+          </div>
+        </div>
+      </div>
+
+      <!-- VIEW 7A: 40-GRID OVERVIEW (Images 1, 4) -->
+      <div id="exam-grid-view" class="p-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-5">
+          <!-- Reading (20 questions) -->
+          <div class="border border-slate-200 rounded-lg overflow-hidden shadow-sm">
+            <div class="px-4 py-2 bg-white border-b border-slate-200 flex items-center gap-2 text-xs font-bold text-slate-700">
+              <span class="w-3 h-3 bg-[#38bdf8] rounded-sm inline-block"></span>
+              <span>Reading (20 questions)</span>
+            </div>
+            <div class="grid grid-cols-5 text-center text-xs font-mono font-bold bg-white" id="grid-reading-cells"></div>
+          </div>
+
+          <!-- Listening (20 questions) -->
+          <div class="border border-slate-200 rounded-lg overflow-hidden shadow-sm">
+            <div class="px-4 py-2 bg-white border-b border-slate-200 flex items-center gap-2 text-xs font-bold text-slate-700">
+              <svg class="w-3.5 h-3.5 text-slate-600" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 2a7 7 0 00-7 7v4a3 3 0 003 3h1a1 1 0 001-1v-4a1 1 0 00-1-1H5V9a5 5 0 0110 0v2h-2a1 1 0 00-1 1v4a1 1 0 001 1h1a3 3 0 003-3V9a7 7 0 00-7-7z" clip-rule="evenodd"/>
+              </svg>
+              <span>Listening (20 questions)</span>
+            </div>
+            <div class="grid grid-cols-5 text-center text-xs font-mono font-bold bg-white" id="grid-listening-cells"></div>
+          </div>
+        </div>
+
+        <!-- Bottom Warning Note & Submit Button -->
+        <div class="flex items-center justify-between pt-1">
+          <p class="text-[11px] text-slate-400">
+            If anything unusual happens, raise your hand immediately and notify the proctor.
+          </p>
+          <button onclick="promptSubmitModal()" 
+            class="bg-[#2563eb] hover:bg-blue-700 active:scale-95 text-white font-bold text-xs px-6 py-2.5 rounded-lg shadow transition">
+            답안 제출
+          </button>
+        </div>
+      </div>
+
+      <!-- VIEW 7B: SINGLE QUESTION (Images 2, 3) -->
+      <div id="exam-question-view" class="hidden p-6 flex flex-col justify-between">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-start min-h-[380px]">
+          <!-- Left Column: Question Prompt Box & Graphic / Audio Badge -->
+          <div class="flex flex-col h-full">
+            <div class="border border-slate-200 rounded-lg p-3 text-xs md:text-sm font-bold text-slate-800 mb-4 bg-white shadow-sm flex items-center gap-2">
+              <span id="q-prompt-number" class="text-slate-800 font-bold">[1]</span>
+              <span id="q-prompt-text">다음 그림을 보고 맞는 단어나 문장을 고르십시오.</span>
+            </div>
+
+            <div class="flex-1 flex flex-col items-center justify-center relative min-h-[280px] bg-white rounded-lg p-2">
+              <div id="q-graphic-content" class="w-full flex items-center justify-center"></div>
+
+              <!-- Bottom-center Headphone Badge for Listening (Image 3) -->
+              <div id="listening-badge-box" class="hidden absolute bottom-2 inset-x-0 flex justify-center">
+                <button id="btn-headphone-play" onclick="playQuestionAudio()" 
+                  class="bg-white border border-slate-300 rounded-xl px-4 py-2 shadow-sm hover:border-blue-500 hover:shadow-md transition flex flex-col items-center group active:scale-95">
+                  <svg class="w-7 h-7 text-slate-700 group-hover:text-blue-600 transition" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 2a7 7 0 00-7 7v4a3 3 0 003 3h1a1 1 0 001-1v-4a1 1 0 00-1-1H5V9a5 5 0 0110 0v2h-2a1 1 0 00-1 1v4a1 1 0 001 1h1a3 3 0 003-3V9a7 7 0 00-7-7z" clip-rule="evenodd"/>
+                  </svg>
+                  <div class="w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[8px] border-t-blue-600 mt-1"></div>
+                  <span class="text-[9px] font-bold text-slate-400 mt-0.5 font-mono">2회 재생</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Column: 4 Pill-shaped Choices (Images 2, 3) -->
+          <div class="space-y-3.5 pt-1" id="q-choices-container"></div>
+        </div>
+
+        <!-- Bottom Nav Bar (Images 2, 3) -->
+        <div class="border-t border-slate-200 mt-6 pt-4 flex items-center justify-between text-xs font-semibold">
+          <button onclick="goToPrevQuestion()" class="text-slate-600 hover:text-slate-900 px-4 py-2 rounded-lg hover:bg-slate-100 flex items-center gap-1 transition">
+            &lt; Previous
+          </button>
+          <button onclick="toggleBackToGrid()" class="bg-white hover:bg-slate-50 text-slate-700 px-5 py-2 rounded-lg border border-slate-300 flex items-center gap-2 shadow-sm transition active:scale-95">
+            <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
+            Total questions
+          </button>
+          <button onclick="goToNextQuestion()" class="text-slate-600 hover:text-slate-900 px-4 py-2 rounded-lg hover:bg-slate-100 flex items-center gap-1 transition">
+            Next &gt;
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- SUBMIT MODAL -->
+  <div id="submit-confirm-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl shadow-2xl max-w-sm w-full p-6 text-center border border-slate-200">
+      <h3 class="text-base font-bold text-[#2563eb]">Submit Exam</h3>
+      <p class="text-xs text-slate-600 mt-2 mb-6">Are you sure you want to submit your answers?</p>
+      <div class="flex gap-3 justify-center">
+        <button onclick="closeSubmitConfirm()" class="bg-[#6b7280] hover:bg-[#4b5563] text-white font-bold text-xs px-6 py-2 rounded shadow transition active:scale-95">Cancel</button>
+        <button onclick="executeFinalSubmit()" class="bg-[#2563eb] hover:bg-blue-700 text-white font-bold text-xs px-6 py-2 rounded shadow transition active:scale-95">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 8: FINISH SCREEN -->
+  <section id="step-8-finish-screen" class="hidden min-h-screen bg-[#f8fafc] flex flex-col items-center justify-center p-4">
+    <div class="bg-white rounded-none shadow-2xl max-w-md w-full border-2 border-slate-800 overflow-hidden text-center">
+      <div class="bg-[#233852] text-white py-2.5 px-4 text-xs font-bold tracking-wider">시험 종료</div>
+      <div class="p-6">
+        <h2 class="text-base font-black text-slate-900 tracking-wide brand-font mb-3">EPX-TOPIK</h2>
+        <p class="text-[11px] text-slate-700 leading-relaxed font-serif mb-4">
+          Your answer has been successfully submitted. Do not turn off your tablet PC, but please sit quietly until the proctor instructs you to leave.
+        </p>
+        <div class="flex items-center justify-center gap-1.5 my-4">
+          <span id="finish-score-val" class="font-mono text-3xl font-black text-[#0284c7] border border-[#38bdf8] bg-sky-50 px-4 py-1 rounded tracking-wider">0.0</span>
+          <span class="text-xs font-bold text-slate-500">/ 100</span>
+        </div>
+        <div class="flex flex-wrap items-center justify-center gap-2 mb-6">
+          <button id="btn-toggle-score" onclick="toggleScoreVisibility()" class="bg-[#38bdf8] hover:bg-sky-500 text-white font-bold text-xs px-4 py-2 rounded shadow transition active:scale-95">Hide score</button>
+          <button onclick="goToColorBlindTest()" class="bg-white hover:bg-slate-50 text-slate-800 font-bold text-xs px-3 py-2 rounded border border-slate-400 shadow-sm transition active:scale-95">Color Blind Test</button>
+          <button onclick="returnToWaitingScreen()" class="bg-white hover:bg-slate-50 text-slate-800 font-bold text-xs px-4 py-2 rounded border border-slate-400 shadow-sm transition active:scale-95">Back to Waiting</button>
+        </div>
+        <p class="text-[9px] text-slate-800 italic leading-tight underline mb-3">
+          *The Korea Industrial Manpower Agency does not require additional fees from candidates in addition to the examination fee or arrange employment to companies through brokers.
+        </p>
+        <p class="text-[10px] text-sky-600 font-medium">
+          Returning to waiting page in <span id="finish-countdown">30</span> seconds...
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- STEP 9: COLOR BLIND TEST -->
+  <section id="step-9-color-blind-screen" class="hidden min-h-screen bg-[#f4f7fa] flex flex-col items-center justify-center p-4">
+    <div class="bg-white shadow-2xl max-w-3xl w-full border border-slate-200 overflow-hidden">
+      <div class="bg-[#0078d4] text-white py-2.5 px-4 text-center font-bold text-sm tracking-wider shadow">색각 테스트</div>
+      <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+        <div class="flex flex-col items-center justify-center p-4 bg-slate-50 rounded-xl border border-slate-200 shadow-inner">
+          <div class="relative w-[260px] h-[260px] flex items-center justify-center">
+            <canvas id="ishihara-canvas" width="260" height="260" class="rounded-full shadow-md"></canvas>
+          </div>
+          <div class="text-xs font-bold text-slate-600 mt-3 font-mono">
+            <span id="cb-plate-counter">1 / 15</span>
+          </div>
+        </div>
+        <div class="flex flex-col justify-between h-full space-y-3">
+          <div class="bg-white p-3 rounded-lg border border-slate-200 shadow-sm flex items-center gap-4">
+            <div class="w-12 h-12 bg-gradient-to-tr from-amber-500 to-rose-500 rounded-lg flex items-center justify-center shadow text-white font-black text-lg">
+              <svg class="w-7 h-7 text-white" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L1 21h22L12 2zm0 4l7.53 13H4.47L12 6z"/></svg>
+            </div>
+            <div class="text-[11px] leading-tight space-y-0.5 flex-1">
+              <div class="flex justify-between"><span class="text-slate-500 font-semibold">ID</span> <span class="font-bold text-slate-800 font-mono">EPX-TOPIK</span></div>
+              <div class="flex justify-between"><span class="text-slate-500 font-semibold">Birth</span> <span class="font-bold text-slate-800 font-mono">2050.01.01</span></div>
+              <div class="flex justify-between"><span class="text-slate-500 font-semibold">Name</span> <span class="font-bold text-slate-800 font-mono">EPX_HKA01</span></div>
+            </div>
+          </div>
+          <div class="h-1 bg-[#0078d4] w-full rounded-full"></div>
+          <div class="text-center">
+            <span id="cb-timer-display" class="font-mono text-3xl font-black text-slate-900 tracking-wider">2:28</span>
+          </div>
+          <div>
+            <div id="cb-input-display" class="w-full bg-slate-50 border border-slate-300 rounded py-2 px-4 text-center text-2xl font-black font-mono tracking-widest text-slate-900 min-h-[46px] shadow-inner flex items-center justify-center"></div>
+          </div>
+          <div class="grid grid-cols-3 gap-2">
+            <button onclick="pressCbKey('1')" class="py-2 bg-white hover:bg-slate-100 active:bg-blue-100 border border-slate-300 rounded font-bold text-base text-slate-800 shadow-sm transition active:scale-95">1</button>
+            <button onclick="pressCbKey('2')" class="py-2 bg-white hover:bg-slate-100 active:bg-blue-100 border border-slate-300 rounded font-bold text-base text-slate-800 shadow-sm transition active:scale-95">2</button>
+            <button onclick="pressCbKey('3')" class="py-2 bg-white hover:bg-slate-100 active:bg-blue-100 border border-slate-300 rounded font-bold text-base text-slate-800 shadow-sm transition active:scale-95">3</button>
+            <button onclick="pressCbKey('4')" class="py-2 bg-white hover:bg-slate-100 active:bg-blue-100 border border-slate-300 rounded font-bold text-base text-slate-800 shadow-sm transition active:scale-95">4</button>
+            <button onclick="pressCbKey('5')" class="py-2 bg-white hover:bg-slate-100 active:bg-blue-100 border border-slate-300 rounded font-bold text-base text-slate-800 shadow-sm transition active:scale-95">5</button>
+            <button onclick="pressCbKey('6')" class="py-2 bg-white hover:bg-slate-100 active:bg-blue-100 border border-slate-300 rounded font-bold text-base text-slate-800 shadow-sm transition active:scale-95">6</button>
+            <button onclick="pressCbKey('7')" class="py-2 bg-white hover:bg-slate-100 active:bg-blue-100 border border-slate-300 rounded font-bold text-base text-slate-800 shadow-sm transition active:scale-95">7</button>
+            <button onclick="pressCbKey('8')" class="py-2 bg-white hover:bg-slate-100 active:bg-blue-100 border border-slate-300 rounded font-bold text-base text-slate-800 shadow-sm transition active:scale-95">8</button>
+            <button onclick="pressCbKey('9')" class="py-2 bg-white hover:bg-slate-100 active:bg-blue-100 border border-slate-300 rounded font-bold text-base text-slate-800 shadow-sm transition active:scale-95">9</button>
+            <button onclick="pressCbKey('C')" class="py-2 bg-slate-100 hover:bg-slate-200 border border-slate-300 rounded font-bold text-base text-slate-700 shadow-sm transition active:scale-95">C</button>
+            <button onclick="pressCbKey('0')" class="py-2 bg-white hover:bg-slate-100 active:bg-blue-100 border border-slate-300 rounded font-bold text-base text-slate-800 shadow-sm transition active:scale-95">0</button>
+            <button onclick="pressCbKey('DEL')" class="py-2 bg-slate-100 hover:bg-slate-200 border border-slate-300 rounded font-bold text-base text-slate-700 shadow-sm transition active:scale-95 flex items-center justify-center">
+              <svg class="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2M3 12l6.5-6.5a2 2 0 011.414-.586H20a2 2 0 012 2v10a2 2 0 01-2 2h-9.086a2 2 0 01-1.414-.586L3 12z"/></svg>
+            </button>
+          </div>
+          <div class="grid grid-cols-3 gap-2 pt-1">
+            <button onclick="cbPrevPlate()" class="bg-[#f59e0b] hover:bg-amber-600 text-white font-bold text-xs py-2.5 rounded shadow transition active:scale-95">BACK</button>
+            <button onclick="cbSkipPlate()" class="bg-[#f59e0b] hover:bg-amber-600 text-white font-bold text-xs py-2.5 rounded shadow transition active:scale-95">SKIP</button>
+            <button onclick="cbOkPlate()" class="bg-[#0078d4] hover:bg-blue-700 text-white font-bold text-xs py-2.5 rounded shadow transition active:scale-95">OK</button>
+          </div>
+          <p class="text-[10px] text-slate-500 text-center leading-tight">Enter the number you see on the plate. SKIP marks the question incorrect.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STEP 10: COLOR BLIND TEST RESULT -->
+  <section id="step-10-color-blind-result-screen" class="hidden min-h-screen bg-[#f4f7fa] flex flex-col items-center justify-center p-4">
+    <div class="bg-white shadow-2xl max-w-md w-full border border-slate-200 overflow-hidden">
+      <div class="bg-[#0078d4] text-white py-2.5 px-4 text-center font-bold text-sm tracking-wider shadow">색각 테스트</div>
+      <div class="p-8">
+        <div class="mb-5">
+          <span id="cb-res-badge" class="inline-block px-4 py-1.5 rounded-full text-xs font-black text-white bg-red-600 tracking-wider">FAIL</span>
+        </div>
+        <div class="space-y-2 text-xs text-slate-700 mb-6 font-sans">
+          <div class="flex justify-between border-b border-slate-100 pb-1.5"><span class="font-bold text-slate-900">Student:</span><span class="font-mono text-slate-700" id="cb-res-student-pc">EPX_HKA01</span></div>
+          <div class="flex justify-between border-b border-slate-100 pb-1.5"><span class="font-bold text-slate-900">Exam No:</span><span class="font-mono text-slate-700">EPX-TOPIK</span></div>
+          <div class="flex justify-between border-b border-slate-100 pb-1.5"><span class="font-bold text-slate-900">Birth:</span><span class="font-mono text-slate-700">2050.01.01</span></div>
+          <div class="flex justify-between border-b border-slate-100 pb-1.5"><span class="font-bold text-slate-900">Score:</span><span id="cb-res-score-str" class="font-bold text-slate-900">1 / 15 correct</span></div>
+          <div class="flex justify-between border-b border-slate-100 pb-1.5"><span class="font-bold text-slate-900">Time Taken:</span><span id="cb-res-time-taken" class="font-mono text-slate-700">0:25 (of 2:30)</span></div>
+          <div class="flex justify-between"><span class="font-bold text-slate-900">Finished By:</span><span id="cb-res-finished-by" class="text-slate-700">All questions answered</span></div>
+        </div>
+        <p class="text-[11px] text-[#0078d4] font-medium text-center mb-6">Returning to waiting page in <span id="cb-res-countdown">30</span> seconds...</p>
+        <div class="flex gap-2 justify-center">
+          <button onclick="retakeColorBlindTest()" class="bg-[#0078d4] hover:bg-blue-700 text-white font-bold text-xs px-4 py-2 rounded shadow transition active:scale-95">Retake Test</button>
+          <button onclick="goToFinishScreenFromCb()" class="bg-[#e2e8f0] hover:bg-slate-300 text-slate-700 font-bold text-xs px-4 py-2 rounded transition active:scale-95">Back</button>
+          <button onclick="returnToWaitingScreen()" class="bg-[#e2e8f0] hover:bg-slate-300 text-slate-700 font-bold text-xs px-4 py-2 rounded transition active:scale-95">BACK</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SCORECARD MODAL -->
+  <div id="result-modal" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full p-6 text-center border-t-8 border-blue-600 max-h-[90vh] overflow-y-auto">
+      <div class="text-sm font-black text-blue-600 tracking-wider brand-font">EPX TOPIK OFFICIAL SCORECARD</div>
+      <h2 class="text-2xl font-black text-slate-900 mt-1 mb-4">시험 결과 확인 (Official Result)</h2>
+      <div class="bg-slate-50 border border-slate-200 rounded-lg p-3 text-xs grid grid-cols-2 gap-2 text-left mb-5">
+        <div>수험번호: <b class="text-slate-800 font-mono">0152022C50812316</b></div>
+        <div>좌석번호: <b class="text-slate-800 font-mono">EPX_HKA01</b></div>
+        <div>성명: <b class="text-slate-800">K. A. DILSHAN PERERA</b></div>
+        <div>분야: <b class="text-slate-800">제조업 (Manufacturing)</b></div>
+      </div>
+      <div class="bg-gradient-to-r from-blue-900 to-indigo-900 text-white rounded-xl p-5 mb-5 shadow-lg">
+        <div class="text-xs text-blue-200 font-semibold uppercase tracking-wider brand-font">EPX TOPIK Total Score (총점)</div>
+        <div class="text-5xl font-black font-mono my-2 text-yellow-300">
+          <span id="res-total-score">0</span> <span class="text-xl text-white font-normal">/ 200 점</span>
+        </div>
+        <div id="res-pass-status" class="inline-block px-3 py-1 rounded-full text-xs font-bold bg-emerald-500 text-white mt-1">합격 기준 통과 (Pass)</div>
+      </div>
+      <div class="grid grid-cols-2 gap-4 mb-6">
+        <div class="bg-blue-50 border border-blue-200 p-4 rounded-xl text-center">
+          <div class="text-xs font-bold text-blue-800">읽기 (Reading)</div>
+          <div class="text-2xl font-extrabold text-blue-900 font-mono mt-1"><span id="res-reading-score">0</span> / 100 점</div>
+          <div id="res-reading-correct" class="text-xs text-slate-500 mt-1">0 / 20 정답</div>
+        </div>
+        <div class="bg-indigo-50 border border-indigo-200 p-4 rounded-xl text-center">
+          <div class="text-xs font-bold text-indigo-800">듣기 (Listening)</div>
+          <div class="text-2xl font-extrabold text-indigo-900 font-mono mt-1"><span id="res-listening-score">0</span> / 100 점</div>
+          <div id="res-listening-correct" class="text-xs text-slate-500 mt-1">0 / 20 정답</div>
+        </div>
+      </div>
+      <div class="flex gap-3">
+        <button onclick="closeScorecardModal()" class="flex-1 bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold py-3 rounded-lg text-xs">닫기 (Back to Finish Screen)</button>
+        <button onclick="location.reload()" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg text-xs shadow">처음부터 다시 시작하기 (Restart)</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ================= JAVASCRIPT LOGIC ================= -->
+  <script>
+    const examBus = ('BroadcastChannel' in window) ? new BroadcastChannel('epx_topik_bus') : null;
+
+    function hideAllScreens() {
+      document.getElementById('step-0-screen').classList.add('hidden');
+      document.getElementById('step-0b-waiting-screen').classList.add('hidden');
+      document.getElementById('step-1-screen').classList.add('hidden');
+      document.getElementById('step-2-screen').classList.add('hidden');
+      document.getElementById('step-3-screen').classList.add('hidden');
+      document.getElementById('step-4-screen').classList.add('hidden');
+      document.getElementById('step-5-tutorial-screen').classList.add('hidden');
+      document.getElementById('step-6-examinee-screen').classList.add('hidden');
+      document.getElementById('step-7-exam-container').classList.add('hidden');
+      document.getElementById('step-8-finish-screen').classList.add('hidden');
+      document.getElementById('step-9-color-blind-screen').classList.add('hidden');
+      document.getElementById('step-10-color-blind-result-screen').classList.add('hidden');
+    }
+
+    let lastWaitingEnterTime = Date.now();
+
+    // STEP 0: Lab Login -> STEP 0B: /lab/waiting (Awaiting Admin Start Command!)
+    function handleLabLogin(e) {
+      e.preventDefault();
+      const pc = document.getElementById('lab-username').value || 'EPX_HKA01';
+      document.getElementById('waiting-pc-name').innerText = pc;
+
+      lastWaitingEnterTime = Date.now();
+      const statusLabel = document.getElementById('waiting-status-label');
+      if (statusLabel) {
+        statusLabel.innerText = "Waiting";
+        statusLabel.className = "text-base font-extrabold text-[#f59e0b] tracking-wide";
+      }
+      const syncStatus = document.getElementById('waiting-sync-status');
+      if (syncStatus) {
+        syncStatus.innerText = "Awaiting exam session start signal...";
+        syncStatus.className = "text-xs font-bold text-slate-500 font-mono";
+      }
+
+      hideAllScreens();
+      document.getElementById('step-0b-waiting-screen').classList.remove('hidden');
+
+      // Notify Admin Panel that PC is online and waiting!
+      sendProctorSignal({
+        type: 'PC_ONLINE',
+        pcName: pc,
+        status: 'Waiting'
+      });
+    }
+
+    // Triggered when Admin Panel fires "START_EXAM" or test trigger clicked
+    function triggerStartExamFromAdmin() {
+      const waitingScreen = document.getElementById('step-0b-waiting-screen');
+      // If student is not currently on waiting screen, do not interrupt
+      if (!waitingScreen || waitingScreen.classList.contains('hidden')) return;
+
+      const statusLabel = document.getElementById('waiting-status-label');
+      const syncStatus = document.getElementById('waiting-sync-status');
+      
+      if (statusLabel) {
+        statusLabel.innerText = "Exam Started!";
+        statusLabel.className = "text-base font-extrabold text-emerald-600 tracking-wide animate-bounce";
+      }
+      if (syncStatus) {
+        syncStatus.innerText = "Admin Signal Received!";
+        syncStatus.className = "text-xs font-bold text-emerald-600 font-mono";
+      }
+
+      setTimeout(() => {
+        hideAllScreens();
+        document.getElementById('step-1-screen').classList.remove('hidden');
+      }, 900);
+    }
+
+    // Listen to Admin Panel signals via BroadcastChannel and localStorage
+    if (examBus) {
+      examBus.onmessage = (event) => {
+        if (event.data && (event.data.type === 'START_EXAM_SESSION' || event.data.type === 'START_PC')) {
+          const targetPc = event.data.targetPc;
+          const myPc = document.getElementById('waiting-pc-name').innerText;
+          if (!targetPc || targetPc === 'ALL' || targetPc === myPc) {
+            triggerStartExamFromAdmin();
+          }
+        }
+      };
+    }
+
+    window.addEventListener('storage', (event) => {
+      if (event.key === 'epx_admin_command') {
+        try {
+          const data = JSON.parse(event.newValue);
+          if (data && data.action === 'START_EXAM') {
+            triggerStartExamFromAdmin();
+          }
+        } catch(e) {}
+      }
+    });
+
+    function sendProctorSignal(msgObj) {
+      if (examBus) examBus.postMessage(msgObj);
+      localStorage.setItem('epx_student_event', JSON.stringify({
+        ...msgObj,
+        timestamp: Date.now()
+      }));
+    }
+
+    // Step 1 -> Step 2
+    function handleUbtLogin(e) {
+      e.preventDefault();
+      const testNum = document.getElementById('candidate-test-num').value;
+      document.getElementById('verified-test-number').innerText = testNum;
+
+      hideAllScreens();
+      document.getElementById('step-2-screen').classList.remove('hidden');
+      initCamera();
+
+      sendProctorSignal({
+        type: 'STUDENT_LOGGED_IN',
+        pcName: document.getElementById('waiting-pc-name').innerText,
+        testNumber: testNum,
+        status: 'Verification'
+      });
+    }
+
+    let cameraStream = null;
+    function initCamera() {
+      const video = document.getElementById('webcam-preview');
+      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        navigator.mediaDevices.getUserMedia({ video: true })
+          .then(stream => {
+            cameraStream = stream;
+            if (video) video.srcObject = stream;
+            const sElem = document.getElementById('face-match-status');
+            if (sElem) sElem.innerText = "Verified OK";
+            const mElem = document.getElementById('match-percentage');
+            if (mElem) {
+              mElem.innerText = "99%";
+              mElem.className = "text-emerald-400 font-bold font-mono text-sm bg-black/60 px-2 py-0.5 rounded";
+            }
+          })
+          .catch(() => {
+            setTimeout(() => {
+              const sElem = document.getElementById('face-match-status');
+              if (sElem) sElem.innerText = "Verified OK";
+              const mElem = document.getElementById('match-percentage');
+              if (mElem) {
+                mElem.innerText = "98%";
+                mElem.className = "text-emerald-400 font-bold font-mono text-sm bg-black/60 px-2 py-0.5 rounded";
+              }
+            }, 1200);
+          });
+      }
+    }
+
+    function stopCamera() {
+      if (cameraStream) {
+        try {
+          cameraStream.getTracks().forEach(track => track.stop());
+        } catch(e) {}
+        cameraStream = null;
+      }
+    }
+
+    // Step 2 -> Step 3
+    function goToBrightnessScreen() {
+      hideAllScreens();
+      document.getElementById('step-3-screen').classList.remove('hidden');
+    }
+
+    function adjustBrightness(val) {
+      document.getElementById('app-body').style.filter = `brightness(${val}%)`;
+    }
+
+    // Step 3 -> Step 4
+    function goToVolumeScreen() {
+      hideAllScreens();
+      document.getElementById('step-4-screen').classList.remove('hidden');
+    }
+
+    let systemVolume = 0.75;
+    function adjustVolume(val) {
+      systemVolume = val / 100;
+    }
+
+    function playStep4TestAudio() {
+      playTone(523.25, 250, 'triangle', 0);
+      playTone(659.25, 350, 'triangle', 200);
+      document.getElementById('step4-play-label').innerText = "EPX 안내 음성 재생 중...";
+      speakKoreanText("EPX 토픽 시험 안내 음성입니다. 이어폰 소리가 잘 들립니까?", () => {
+        document.getElementById('step4-play-label').innerText = "재생 완료 (Completed)";
+      });
+    }
+
+    // Current video mode: 'local' | 'youtube'
+    let currentVideoMode = 'local';
+
+    function switchTutorialMode(mode) {
+      currentVideoMode = mode;
+      const btnLocal = document.getElementById('btn-mode-local');
+      const btnYt = document.getElementById('btn-mode-yt');
+      if (btnLocal && btnYt) {
+        if (mode === 'local') {
+          btnLocal.className = "px-3 py-1.5 text-xs rounded-lg bg-blue-600 text-white font-bold transition flex items-center gap-1.5 shadow cursor-pointer";
+          btnYt.className = "px-3 py-1.5 text-xs rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold transition flex items-center gap-1.5 cursor-pointer";
+        } else {
+          btnLocal.className = "px-3 py-1.5 text-xs rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold transition flex items-center gap-1.5 cursor-pointer";
+          btnYt.className = "px-3 py-1.5 text-xs rounded-lg bg-red-600 text-white font-bold transition flex items-center gap-1.5 shadow cursor-pointer";
+        }
+      }
+      startTutorialVideoPlay(mode);
+    }
+
+    function openTutorialPopup() {
+      const w = 960;
+      const h = 540;
+      const left = Math.max(0, Math.floor((window.screen.width - w) / 2));
+      const top = Math.max(0, Math.floor((window.screen.height - h) / 2));
+      window.open(
+        'https://www.youtube-nocookie.com/embed/VG4WT495zKE?autoplay=1&rel=0',
+        'epx_tutorial_window',
+        `width=${w},height=${h},top=${top},left=${left},toolbar=no,menubar=no,status=no,resizable=yes`
+      );
+    }
+
+    // Step 4 -> Step 5: Tutorial
+    function goToTutorialScreen() {
+      hideAllScreens();
+      document.getElementById('step-5-tutorial-screen').classList.remove('hidden');
+      const overlay = document.getElementById('video-thumbnail-overlay');
+      const iframe = document.getElementById('tutorial-video-iframe');
+      const nativeVid = document.getElementById('tutorial-native-video');
+      if (overlay) overlay.classList.remove('hidden');
+      if (iframe) {
+        iframe.classList.add('hidden');
+        iframe.src = "";
+      }
+      if (nativeVid) {
+        nativeVid.classList.add('hidden');
+        nativeVid.pause();
+        nativeVid.currentTime = 0;
+      }
+    }
+
+    // Play Tutorial Video (Called when user clicks the Red Play button or toggles mode)
+    function startTutorialVideoPlay(mode = 'local', forceReload = false) {
+      const overlay = document.getElementById('video-thumbnail-overlay');
+      const iframe = document.getElementById('tutorial-video-iframe');
+      const nativeVid = document.getElementById('tutorial-native-video');
+
+      if (overlay) overlay.classList.add('hidden');
+
+      if (mode === 'youtube') {
+        if (nativeVid) {
+          nativeVid.pause();
+          nativeVid.classList.add('hidden');
+        }
+        if (iframe) {
+          iframe.classList.remove('hidden');
+          iframe.src = "https://www.youtube-nocookie.com/embed/VG4WT495zKE?autoplay=1&rel=0";
+        }
+      } else {
+        // Native local video mode (default & recommended)
+        if (iframe) {
+          iframe.classList.add('hidden');
+          iframe.src = "";
+        }
+        if (nativeVid) {
+          nativeVid.classList.remove('hidden');
+          if (forceReload) nativeVid.currentTime = 0;
+          const playPromise = nativeVid.play();
+          if (playPromise !== undefined) {
+            playPromise.catch(err => {
+              console.warn('Native video autoplay policy note:', err);
+            });
+          }
+        }
+      }
+    }
+
+    // Step 5 -> Step 6: Examinee's Information (Stops video)
+    function skipTutorial() {
+      const iframe = document.getElementById('tutorial-video-iframe');
+      if (iframe) {
+        iframe.src = "";
+        iframe.classList.add('hidden');
+      }
+      const nativeVid = document.getElementById('tutorial-native-video');
+      if (nativeVid) {
+        nativeVid.pause();
+        nativeVid.classList.add('hidden');
+      }
+      const overlay = document.getElementById('video-thumbnail-overlay');
+      if (overlay) overlay.classList.remove('hidden');
+      hideAllScreens();
+      document.getElementById('step-6-examinee-screen').classList.remove('hidden');
+    }
+
+    // Step 6: Download Simulation -> Start button appears!
+    function startExamPackageDownload() {
+      const btnDl = document.getElementById('btn-exam-download');
+      const progressBox = document.getElementById('download-progress-container');
+      const pBar = document.getElementById('download-bar');
+      const pText = document.getElementById('download-percent');
+      const btnStart = document.getElementById('btn-start-the-exam');
+
+      btnDl.disabled = true;
+      btnDl.classList.add('opacity-50');
+      progressBox.classList.remove('hidden');
+
+      let progress = 0;
+      const interval = setInterval(() => {
+        progress += 10;
+        pBar.style.width = progress + '%';
+        pText.innerText = progress + '%';
+
+        if (progress >= 100) {
+          clearInterval(interval);
+          setTimeout(() => {
+            progressBox.classList.add('hidden');
+            btnDl.classList.add('hidden');
+            btnStart.classList.remove('hidden');
+          }, 300);
+        }
+      }, 150);
+    }
+
+    // Step 6 -> Step 7: Enter Actual Exam
+    function goToExamMainGrid() {
+      hideAllScreens();
+      document.getElementById('step-7-exam-container').classList.remove('hidden');
+      buildExamGrid();
+      startExamTimer();
+
+      sendProctorSignal({
+        type: 'EXAM_STARTED',
+        pcName: document.getElementById('waiting-pc-name').innerText,
+        status: 'Testing'
+      });
+    }
+
+    function toggleBackToGrid() {
+      document.getElementById('exam-question-view').classList.add('hidden');
+      document.getElementById('exam-grid-view').classList.remove('hidden');
+      updateGridStatus();
+    }
+
+    function openQuestionDirectly(idx) {
+      currentQuestionIndex = idx;
+      document.getElementById('exam-grid-view').classList.add('hidden');
+      document.getElementById('exam-question-view').classList.remove('hidden');
+      renderSingleQuestion();
+    }
+
+    // --- 40 QUESTIONS DATA ---
+    const examQuestions = [
+      // Q1: Moving truck ladder lift (Exact from Screenshot!)
+      {
+        id: 1,
+        section: "reading",
+        instruction: "다음 그림을 보고 맞는 단어나 문장을 고르십시오.",
+        graphicSvg: "moving_truck",
+        options: [
+          "새 아파트를 짓고 있습니다.",
+          "트럭으로 나무를 운반하고 있습니다.",
+          "사다리로 이삿짐을 옮기고 있습니다.",
+          "아파트 벽에 페인트를 칠하고 있습니다."
+        ],
+        correct: 3
+      },
+      // Q2: Hammer
+      {
+        id: 2,
+        section: "reading",
+        instruction: "다음 그림을 보고 맞는 단어를 고르십시오.",
+        graphicSvg: "hammer",
+        options: ["톱", "망치", "칼", "드라이버"],
+        correct: 2
+      },
+      // Q3: Meal eating
+      {
+        id: 3,
+        section: "reading",
+        instruction: "다음 그림을 보고 맞는 문장을 고르십시오.",
+        graphicSvg: "eating",
+        options: ["잠을 잡니다.", "식사를 합니다.", "운동을 합니다.", "전화를 합니다."],
+        correct: 2
+      },
+      // Q4: No Smoking
+      {
+        id: 4,
+        section: "reading",
+        instruction: "다음 표지판이 있는 곳에서 해야 할 행동으로 맞는 것은 무엇입니까?",
+        graphicSvg: "nosmoking",
+        options: ["담배를 피우면 안 됩니다.", "휴대전화를 꺼야 합니다.", "손을 씻어야 합니다.", "신발을 벗어야 합니다."],
+        correct: 1
+      }
+    ];
+
+    for (let i = 5; i <= 20; i++) {
+      examQuestions.push({
+        id: i,
+        section: "reading",
+        instruction: `[${i}번] 빈칸에 들어갈 가장 알맞은 것을 고르십시오.`,
+        graphicSvg: "text_box",
+        textPrompt: `가: 오늘 날씨가 어때요?\n나: 바람이 많이 불고 날씨가 조금 ( ${i} ).`,
+        options: ["추워요", "좋아요", "넓어요", "작아요"],
+        correct: 1
+      });
+    }
+
+    // Q21: Listening - 등산 (Image 3 exact replica!)
+    examQuestions.push({
+      id: 21,
+      section: "listening",
+      instruction: "들은 것을 고르십시오.",
+      spokenAudio: "등산",
+      options: ["등산", "등선", "동산", "등상"],
+      correct: 1
+    });
+
+    examQuestions.push({
+      id: 22,
+      section: "listening",
+      instruction: "들은 것을 고르십시오.",
+      spokenAudio: "공장",
+      options: ["극장", "공장", "시장", "식당"],
+      correct: 2
+    });
+
+    for (let i = 23; i <= 40; i++) {
+      examQuestions.push({
+        id: i,
+        section: "listening",
+        instruction: `[${i}번] 대화를 듣고 이어질 말로 알맞은 것을 고르십시오.`,
+        spokenAudio: `투안 씨, 기계를 작동할 때 손을 조심하세요.`,
+        options: ["네, 조심해서 작업할게요.", "아니요, 이미 다 고쳤어요.", "네, 퇴근하고 올게요.", "아니요, 내일 살게요."],
+        correct: 1
+      });
+    }
+
+    let currentQuestionIndex = 0;
+    let studentAnswers = new Array(40).fill(null);
+    let examRemainingSeconds = 50 * 60;
+    let examClockInterval = null;
+    let questionPlayCounts = new Array(40).fill(0);
+    let isSpeechActive = false;
+
+    function buildExamGrid() {
+      const readBox = document.getElementById('grid-reading-cells');
+      const listBox = document.getElementById('grid-listening-cells');
+      readBox.innerHTML = '';
+      listBox.innerHTML = '';
+
+      for (let i = 0; i < 20; i++) {
+        const cell = document.createElement('div');
+        cell.id = `grid-cell-${i}`;
+        cell.className = "py-3 border-r border-b border-slate-300 hover:bg-blue-50 cursor-pointer transition select-none flex items-center justify-center font-bold text-slate-700";
+        cell.innerText = i + 1;
+        cell.onclick = () => openQuestionDirectly(i);
+        readBox.appendChild(cell);
+      }
+
+      for (let i = 20; i < 40; i++) {
+        const cell = document.createElement('div');
+        cell.id = `grid-cell-${i}`;
+        cell.className = "py-3 border-r border-b border-slate-300 hover:bg-blue-50 cursor-pointer transition select-none flex items-center justify-center font-bold text-slate-700";
+        cell.innerText = i + 1;
+        cell.onclick = () => openQuestionDirectly(i);
+        listBox.appendChild(cell);
+      }
+
+      updateGridStatus();
+    }
+
+    function updateGridStatus() {
+      let answeredCount = 0;
+      for (let i = 0; i < 40; i++) {
+        const cell = document.getElementById(`grid-cell-${i}`);
+        if (!cell) continue;
+
+        if (studentAnswers[i] !== null) {
+          answeredCount++;
+          cell.className = "py-3 border-r border-b border-slate-300 bg-blue-600 text-white font-bold cursor-pointer transition select-none flex items-center justify-center";
+        } else {
+          cell.className = "py-3 border-r border-b border-slate-300 bg-white text-slate-700 hover:bg-blue-50 font-bold cursor-pointer transition select-none flex items-center justify-center";
+        }
+      }
+
+      const remCount = 40 - answeredCount;
+      const remElem = document.getElementById('exam-remaining-count');
+      if (remElem) remElem.innerText = remCount;
+      const hRemElem = document.getElementById('header-remaining-count');
+      if (hRemElem) hRemElem.innerText = remCount;
+
+      // Broadcast Progress to Admin Panel
+      sendProctorSignal({
+        type: 'STUDENT_PROGRESS',
+        pcName: document.getElementById('waiting-pc-name').innerText,
+        answeredCount: answeredCount,
+        currentQuestion: currentQuestionIndex + 1,
+        remainingTime: examRemainingSeconds
+      });
+    }
+
+    function renderSingleQuestion() {
+      const q = examQuestions[currentQuestionIndex];
+      document.getElementById('q-prompt-number').innerText = `[${q.id}]`;
+      document.getElementById('q-prompt-text').innerText = q.instruction;
+
+      const listeningBadge = document.getElementById('listening-badge-box');
+      if (q.section === 'listening') {
+        listeningBadge.classList.remove('hidden');
+      } else {
+        listeningBadge.classList.add('hidden');
+      }
+
+      renderGraphicInSingleView(q);
+
+      const cContainer = document.getElementById('q-choices-container');
+      cContainer.innerHTML = '';
+
+      q.options.forEach((optText, optIdx) => {
+        const choiceNum = optIdx + 1;
+        const isSelected = (studentAnswers[currentQuestionIndex] === choiceNum);
+
+        const pill = document.createElement('button');
+        pill.type = 'button';
+        pill.onclick = () => selectExamChoice(choiceNum);
+        pill.className = `w-full py-3.5 px-6 rounded-full border text-left flex items-center gap-4 transition active:scale-[0.99] ${
+          isSelected 
+            ? "border-blue-600 bg-blue-50/70 ring-2 ring-blue-400 font-bold text-blue-900 shadow-sm" 
+            : "border-slate-300 bg-white hover:border-blue-300 hover:bg-slate-50 text-slate-800"
+        }`;
+
+        pill.innerHTML = `
+          <div class="w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs shrink-0 ${
+            isSelected ? "bg-blue-600 text-white border border-blue-600" : "border border-slate-400 text-slate-700 bg-white"
+          }">${choiceNum}</div>
+          <span class="text-xs md:text-sm font-medium ${isSelected ? 'text-blue-950 font-bold' : 'text-slate-800'}">${optText}</span>
+        `;
+        cContainer.appendChild(pill);
+      });
+    }
+
+    function renderGraphicInSingleView(q) {
+      const gBox = document.getElementById('q-graphic-content');
+      gBox.innerHTML = '';
+
+      if (q.graphicSvg === "moving_truck") {
+        // High fidelity replica of Image 2 (2404 Moving Ladder Truck in front of Apartment)
+        gBox.innerHTML = `
+          <div class="flex flex-col items-center w-full max-w-sm rounded-lg overflow-hidden border border-slate-300 bg-slate-100 shadow-sm">
+            <svg class="w-full h-56" viewBox="0 0 360 230" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <!-- Sky & Background -->
+              <rect width="360" height="230" fill="#e2e8f0"/>
+              
+              <!-- Apartment Building Facade (Grayscale as in photo) -->
+              <rect x="70" y="10" width="230" height="190" fill="#cbd5e1" stroke="#94a3b8" stroke-width="2"/>
+              <!-- Apartment Balcony Lines & Windows -->
+              <g fill="#64748b" opacity="0.65">
+                <!-- Floor 4 -->
+                <rect x="85" y="22" width="40" height="28" rx="1"/>
+                <rect x="135" y="22" width="40" height="28" rx="1"/>
+                <rect x="185" y="22" width="40" height="28" rx="1"/>
+                <rect x="235" y="22" width="45" height="28" rx="1"/>
+                <!-- Floor 3 -->
+                <rect x="85" y="60" width="40" height="28" rx="1"/>
+                <rect x="135" y="60" width="40" height="28" rx="1"/>
+                <rect x="185" y="60" width="40" height="28" rx="1"/>
+                <rect x="235" y="60" width="45" height="28" rx="1"/>
+                <!-- Floor 2 -->
+                <rect x="85" y="98" width="40" height="28" rx="1"/>
+                <rect x="135" y="98" width="40" height="28" rx="1"/>
+                <rect x="185" y="98" width="40" height="28" rx="1"/>
+                <rect x="235" y="98" width="45" height="28" rx="1"/>
+                <!-- Floor 1 -->
+                <rect x="85" y="136" width="40" height="28" rx="1"/>
+                <rect x="135" y="136" width="40" height="28" rx="1"/>
+                <rect x="185" y="136" width="40" height="28" rx="1"/>
+                <rect x="235" y="136" width="45" height="28" rx="1"/>
+              </g>
+              
+              <!-- Trees & Ground -->
+              <rect x="0" y="195" width="360" height="35" fill="#475569"/>
+              <ellipse cx="60" cy="180" rx="20" ry="25" fill="#334155"/>
+              <ellipse cx="280" cy="175" rx="18" ry="26" fill="#334155"/>
+
+              <!-- Diagonal Ladder Lift (Reaching up to 3rd/4th Floor Balcony) -->
+              <line x1="165" y1="170" x2="205" y2="40" stroke="#f59e0b" stroke-width="4.5" stroke-linecap="round"/>
+              <line x1="171" y1="170" x2="211" y2="40" stroke="#f59e0b" stroke-width="4.5" stroke-linecap="round"/>
+              <!-- Ladder Rungs -->
+              <line x1="167" y1="155" x2="173" y2="155" stroke="#d97706" stroke-width="2.5"/>
+              <line x1="171" y1="135" x2="177" y2="135" stroke="#d97706" stroke-width="2.5"/>
+              <line x1="176" y1="115" x2="182" y2="115" stroke="#d97706" stroke-width="2.5"/>
+              <line x1="181" y1="95" x2="187" y2="95" stroke="#d97706" stroke-width="2.5"/>
+              <line x1="186" y1="75" x2="192" y2="75" stroke="#d97706" stroke-width="2.5"/>
+              <line x1="191" y1="55" x2="197" y2="55" stroke="#d97706" stroke-width="2.5"/>
+              <!-- Cargo Platform on Top with Boxes -->
+              <rect x="195" y="30" width="22" height="15" fill="#ef4444" rx="2"/>
+              <rect x="197" y="24" width="12" height="9" fill="#fef08a" stroke="#ca8a04"/>
+
+              <!-- 2404 Moving Truck -->
+              <!-- Cargo Box (White with bold 2404 text) -->
+              <rect x="120" y="130" width="65" height="52" fill="#ffffff" stroke="#334155" stroke-width="2"/>
+              <text x="130" y="162" font-family="Montserrat, Arial, sans-serif" font-weight="900" font-size="16" fill="#1e293b" letter-spacing="1">2404</text>
+              <text x="132" y="174" font-size="7" fill="#64748b" font-weight="bold">EXPRESS</text>
+
+              <!-- Truck Cab (Cabin) -->
+              <path d="M90 152L105 138H120V182H90V152Z" fill="#f8fafc" stroke="#334155" stroke-width="2"/>
+              <!-- Windshield -->
+              <path d="M94 152L104 141H116V155H94V152Z" fill="#93c5fd" opacity="0.8"/>
+              <!-- Bumper -->
+              <rect x="86" y="174" width="8" height="8" fill="#64748b" rx="1"/>
+
+              <!-- Truck Wheels -->
+              <circle cx="102" cy="186" r="9" fill="#1e293b"/>
+              <circle cx="102" cy="186" r="4" fill="#94a3b8"/>
+              <circle cx="165" cy="186" r="9" fill="#1e293b"/>
+              <circle cx="165" cy="186" r="4" fill="#94a3b8"/>
+            </svg>
+          </div>
+        `;
+      } else if (q.graphicSvg === "hammer") {
+        gBox.innerHTML = `
+          <div class="flex flex-col items-center">
+            <svg class="w-56 h-48" viewBox="0 0 200 160" fill="none">
+              <rect x="90" y="45" width="20" height="95" fill="#d97706" rx="3" stroke="#78350f" stroke-width="2"/>
+              <rect x="60" y="30" width="80" height="25" fill="#64748b" rx="4" stroke="#1e293b" stroke-width="2"/>
+              <path d="M140 30C155 35 155 45 140 50V30Z" fill="#475569"/>
+            </svg>
+          </div>
+        `;
+      } else if (q.graphicSvg === "eating") {
+        gBox.innerHTML = `
+          <div class="flex flex-col items-center">
+            <svg class="w-56 h-48" viewBox="0 0 200 160" fill="none">
+              <circle cx="100" cy="80" r="50" fill="#f1f5f9" stroke="#94a3b8" stroke-width="3"/>
+              <circle cx="100" cy="80" r="35" fill="#fef08a" stroke="#eab308" stroke-width="2"/>
+              <line x1="35" y1="40" x2="35" y2="120" stroke="#64748b" stroke-width="4" stroke-linecap="round"/>
+              <line x1="165" y1="40" x2="165" y2="120" stroke="#64748b" stroke-width="4" stroke-linecap="round"/>
+            </svg>
+          </div>
+        `;
+      } else if (q.graphicSvg === "nosmoking") {
+        gBox.innerHTML = `
+          <div class="flex flex-col items-center">
+            <svg class="w-56 h-48" viewBox="0 0 200 160" fill="none">
+              <circle cx="100" cy="80" r="55" stroke="#ef4444" stroke-width="8" fill="white"/>
+              <rect x="70" y="74" width="60" height="12" fill="#d97706" rx="2"/>
+              <rect x="110" y="74" width="20" height="12" fill="#ffffff" stroke="#cbd5e1"/>
+              <line x1="60" y1="40" x2="140" y2="120" stroke="#ef4444" stroke-width="8" stroke-linecap="round"/>
+            </svg>
+          </div>
+        `;
+      } else if (q.graphicSvg === "text_box") {
+        gBox.innerHTML = `
+          <div class="bg-white border border-slate-300 rounded-lg p-5 text-left text-sm leading-relaxed text-slate-800 shadow-sm max-w-md w-full">
+            ${q.textPrompt.replace(/\n/g, '<br/>')}
+          </div>
+        `;
+      } else {
+        // Listening questions (clean white area)
+        gBox.innerHTML = `
+          <div class="text-center text-slate-400 py-12">
+            <p class="text-xs font-semibold text-slate-400">아래의 헤드폰 재생 버튼을 눌러 음성을 들으십시오.</p>
+          </div>
+        `;
+      }
+    }
+
+    function selectExamChoice(choiceNum) {
+      studentAnswers[currentQuestionIndex] = choiceNum;
+      renderSingleQuestion();
+      updateGridStatus();
+    }
+
+    function goToPrevQuestion() {
+      if (currentQuestionIndex > 0) {
+        currentQuestionIndex--;
+        renderSingleQuestion();
+      }
+    }
+
+    function goToNextQuestion() {
+      if (currentQuestionIndex < 39) {
+        currentQuestionIndex++;
+        renderSingleQuestion();
+      }
+    }
+
+    function playQuestionAudio() {
+      const q = examQuestions[currentQuestionIndex];
+      if (q.section !== 'listening' || isSpeechActive) return;
+
+      const plays = questionPlayCounts[currentQuestionIndex];
+      if (plays >= 2) {
+        alert("이 문제는 2회 모두 청취 완료되었습니다.");
+        return;
+      }
+
+      isSpeechActive = true;
+      const btnPlay = document.getElementById('btn-headphone-play');
+      if (btnPlay) btnPlay.classList.add('ring-2', 'ring-blue-500', 'pulse-glow');
+
+      playTone(523.25, 300, 'triangle', 0);
+      playTone(659.25, 400, 'triangle', 250);
+
+      setTimeout(() => {
+        speakKoreanText(q.spokenAudio, () => {
+          questionPlayCounts[currentQuestionIndex] = 1;
+
+          setTimeout(() => {
+            playTone(880, 200, 'sine', 0);
+
+            speakKoreanText(`다시 들으십시오. ${q.spokenAudio}`, () => {
+              questionPlayCounts[currentQuestionIndex] = 2;
+              isSpeechActive = false;
+              if (btnPlay) {
+                btnPlay.classList.remove('ring-2', 'ring-blue-500', 'pulse-glow');
+                btnPlay.classList.add('opacity-40', 'pointer-events-none');
+              }
+            });
+          }, 1500);
+        });
+      }, 600);
+    }
+
+    function startExamTimer() {
+      if (examClockInterval) clearInterval(examClockInterval);
+      examClockInterval = setInterval(() => {
+        if (examRemainingSeconds <= 0) {
+          clearInterval(examClockInterval);
+          alert("시험 시간이 종료되었습니다. (Time is up!)");
+          executeFinalSubmit();
+          return;
+        }
+        examRemainingSeconds--;
+        const mins = Math.floor(examRemainingSeconds / 60);
+        const secs = examRemainingSeconds % 60;
+        document.getElementById('digital-exam-timer').innerText = 
+          `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+      }, 1000);
+    }
+
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    let audioCtx = null;
+    function getAudioContext() {
+      if (!audioCtx) audioCtx = new AudioContextClass();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      return audioCtx;
+    }
+
+    function playTone(freq, durationMs, type = 'sine', delayMs = 0) {
+      setTimeout(() => {
+        try {
+          const ctx = getAudioContext();
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = type;
+          osc.frequency.setValueAtTime(freq, ctx.currentTime);
+          gain.gain.setValueAtTime(0.2 * systemVolume, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + (durationMs / 1000));
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start();
+          osc.stop(ctx.currentTime + (durationMs / 1000));
+        } catch (e) {}
+      }, delayMs);
+    }
+
+    function speakKoreanText(text, onComplete) {
+      if (!('speechSynthesis' in window)) {
+        if (onComplete) onComplete();
+        return;
+      }
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'ko-KR';
+      utterance.volume = systemVolume;
+      utterance.rate = 0.88;
+      const voices = window.speechSynthesis.getVoices();
+      const koVoice = voices.find(v => v.lang.startsWith('ko'));
+      if (koVoice) utterance.voice = koVoice;
+      utterance.onend = () => { if (onComplete) onComplete(); };
+      utterance.onerror = () => { if (onComplete) onComplete(); };
+      window.speechSynthesis.speak(utterance);
+    }
+
+    // Modal Trigger for Submit (Image 4 exact modal)
+    function promptSubmitModal() {
+      document.getElementById('submit-confirm-modal').classList.remove('hidden');
+    }
+
+    function closeSubmitConfirm() {
+      document.getElementById('submit-confirm-modal').classList.add('hidden');
+    }
+
+    // Execute Final Submit -> Enters Step 8: /ubt/finish Screen (Images 1 & 5!)
+    function executeFinalSubmit() {
+      closeSubmitConfirm();
+      if (examClockInterval) clearInterval(examClockInterval);
+
+      hideAllScreens();
+      document.getElementById('step-8-finish-screen').classList.remove('hidden');
+
+      let rCorrect = 0;
+      let lCorrect = 0;
+
+      for (let i = 0; i < 40; i++) {
+        const q = examQuestions[i];
+        if (studentAnswers[i] === q.correct) {
+          if (q.section === 'reading') rCorrect++;
+          else lCorrect++;
+        }
+      }
+
+      const rScore = rCorrect * 5;
+      const lScore = lCorrect * 5;
+      const totalScore = rScore + lScore;
+
+      document.getElementById('res-total-score').innerText = totalScore;
+      document.getElementById('res-reading-score').innerText = rScore;
+      document.getElementById('res-listening-score').innerText = lScore;
+      document.getElementById('res-reading-correct').innerText = `${rCorrect} / 20 정답`;
+      document.getElementById('res-listening-correct').innerText = `${lCorrect} / 20 정답`;
+
+      actualScorePercent = ((totalScore / 200) * 100);
+      const valElem = document.getElementById('finish-score-val');
+      if (valElem) {
+        valElem.innerText = isScoreVisible ? actualScorePercent.toFixed(1) : "0.0";
+      }
+
+      const passBadge = document.getElementById('res-pass-status');
+      if (totalScore >= 110) {
+        passBadge.innerText = "합격 기준 통과 (PASSED)";
+        passBadge.className = "inline-block px-3 py-1 rounded-full text-xs font-bold bg-emerald-500 text-white mt-1";
+      } else {
+        passBadge.innerText = "불합격 (DID NOT PASS - Cut-off: 110)";
+        passBadge.className = "inline-block px-3 py-1 rounded-full text-xs font-bold bg-red-500 text-white mt-1";
+      }
+
+      startFinishCountdown();
+
+      sendProctorSignal({
+        type: 'EXAM_COMPLETED',
+        pcName: document.getElementById('waiting-pc-name').innerText,
+        totalScore: totalScore,
+        pass: totalScore >= 110
+      });
+    }
+
+    let isScoreVisible = false;
+    let actualScorePercent = 0.0;
+    function toggleScoreVisibility() {
+      isScoreVisible = !isScoreVisible;
+      const btn = document.getElementById('btn-toggle-score');
+      const val = document.getElementById('finish-score-val');
+      if (isScoreVisible) {
+        btn.innerText = "Hide score";
+        val.innerText = actualScorePercent.toFixed(1);
+      } else {
+        btn.innerText = "View score";
+        val.innerText = "0.0";
+      }
+    }
+
+    let finishTimerSec = 30;
+    let finishTimerInterval = null;
+    function startFinishCountdown() {
+      if (finishTimerInterval) {
+        clearInterval(finishTimerInterval);
+        finishTimerInterval = null;
+      }
+      finishTimerSec = 30;
+      const cdElem = document.getElementById('finish-countdown');
+      if (cdElem) cdElem.innerText = finishTimerSec;
+
+      finishTimerInterval = setInterval(() => {
+        finishTimerSec--;
+        if (cdElem) cdElem.innerText = Math.max(0, finishTimerSec);
+
+        if (finishTimerSec <= 0) {
+          clearInterval(finishTimerInterval);
+          finishTimerInterval = null;
+          returnToWaitingScreen();
+        }
+      }, 1000);
+    }
+
+    function openScorecardModal() {
+      document.getElementById('result-modal').classList.remove('hidden');
+    }
+
+    function closeScorecardModal() {
+      document.getElementById('result-modal').classList.add('hidden');
+    }
+
+    function goToStep0LabLogin() {
+      if (finishTimerInterval) clearInterval(finishTimerInterval);
+      if (cbTimerInterval) clearInterval(cbTimerInterval);
+      if (cbResTimer) clearInterval(cbResTimer);
+      hideAllScreens();
+      document.getElementById('step-0-screen').classList.remove('hidden');
+    }
+
+    // Return to the Initial Waiting Screen (Step 0B) after 30s or BACK button
+    function returnToWaitingScreen() {
+      console.log("EPX TOPIK: Returning to Waiting Screen...");
+
+      // 1. Immediately switch UI to Waiting Screen FIRST!
+      try {
+        hideAllScreens();
+        const waitScreen = document.getElementById('step-0b-waiting-screen');
+        if (waitScreen) waitScreen.classList.remove('hidden');
+
+        lastWaitingEnterTime = Date.now();
+        const statusLabel = document.getElementById('waiting-status-label');
+        if (statusLabel) {
+          statusLabel.innerText = "Waiting";
+          statusLabel.className = "text-base font-extrabold text-[#f59e0b] tracking-wide";
+        }
+        const syncStatus = document.getElementById('waiting-sync-status');
+        if (syncStatus) {
+          syncStatus.innerText = "Awaiting exam session start signal...";
+          syncStatus.className = "text-xs font-bold text-slate-500 font-mono";
+        }
+      } catch (err) {
+        console.error("Error switching UI to waiting screen:", err);
+      }
+
+      // 2. Clear all active timers safely
+      try {
+        if (typeof finishTimerInterval !== 'undefined' && finishTimerInterval) {
+          clearInterval(finishTimerInterval);
+          finishTimerInterval = null;
+        }
+        if (typeof cbTimerInterval !== 'undefined' && cbTimerInterval) {
+          clearInterval(cbTimerInterval);
+          cbTimerInterval = null;
+        }
+        if (typeof cbResTimer !== 'undefined' && cbResTimer) {
+          clearInterval(cbResTimer);
+          cbResTimer = null;
+        }
+        if (typeof examClockInterval !== 'undefined' && examClockInterval) {
+          clearInterval(examClockInterval);
+          examClockInterval = null;
+        }
+      } catch (err) {
+        console.error("Error clearing timers:", err);
+      }
+
+      // 3. Stop camera and speech audio
+      try {
+        stopCamera();
+        const tutIframe = document.getElementById('tutorial-video-iframe');
+        if (tutIframe) tutIframe.src = "";
+        if ('speechSynthesis' in window) {
+          window.speechSynthesis.cancel();
+        }
+      } catch (err) {}
+
+      // 4. Close open modals
+      try {
+        const scModal = document.getElementById('result-modal');
+        if (scModal) scModal.classList.add('hidden');
+        const subModal = document.getElementById('submit-confirm-modal');
+        if (subModal) subModal.classList.add('hidden');
+      } catch (err) {}
+
+      // 5. Reset exam & student state
+      try {
+        studentAnswers = new Array(40).fill(null);
+        currentQuestionIndex = 0;
+        examRemainingSeconds = 50 * 60;
+        questionPlayCounts = new Array(40).fill(0);
+        isSpeechActive = false;
+        isScoreVisible = false;
+
+        const valElem = document.getElementById('finish-score-val');
+        if (valElem) valElem.innerText = "0.0";
+        const btnToggle = document.getElementById('btn-toggle-score');
+        if (btnToggle) btnToggle.innerText = "Hide score";
+
+        cbCurrentIndex = 0;
+        cbUserAnswers = new Array(15).fill("");
+        cbInputVal = "";
+        cbTimerSeconds = 150;
+      } catch (err) {
+        console.error("Error resetting states:", err);
+      }
+
+      // 6. Broadcast back to Admin Proctor that PC is back in Waiting pool!
+      try {
+        const pc = document.getElementById('waiting-pc-name') ? document.getElementById('waiting-pc-name').innerText : 'EPX_HKA01';
+        sendProctorSignal({
+          type: 'PC_ONLINE',
+          pcName: pc,
+          status: 'Waiting'
+        });
+      } catch (err) {
+        console.error("Error sending proctor signal:", err);
+      }
+    }
+
+
+    // =========================================================================
+    // COLOR BLIND TEST LOGIC (색각 테스트 - 15 Plates - Images 2 & 3)
+    // =========================================================================
+    const cbPlates = [
+      { id: 1, correct: "5" },
+      { id: 2, correct: "74" },
+      { id: 3, correct: "6" },
+      { id: 4, correct: "12" },
+      { id: 5, correct: "8" },
+      { id: 6, correct: "29" },
+      { id: 7, correct: "45" },
+      { id: 8, correct: "2" },
+      { id: 9, correct: "16" },
+      { id: 10, correct: "7" },
+      { id: 11, correct: "3" },
+      { id: 12, correct: "9" },
+      { id: 13, correct: "26" },
+      { id: 14, correct: "57" },
+      { id: 15, correct: "42" }
+    ];
+
+    let cbCurrentIndex = 0;
+    let cbUserAnswers = new Array(15).fill("");
+    let cbInputVal = "";
+    let cbTimerSeconds = 150; // 2:30 = 150s
+    let cbTimerInterval = null;
+    let cbStartTime = null;
+    let cbResTimer = null;
+
+    function goToColorBlindTest() {
+      hideAllScreens();
+      document.getElementById('step-9-color-blind-screen').classList.remove('hidden');
+      cbCurrentIndex = 0;
+      cbUserAnswers = new Array(15).fill("");
+      cbInputVal = "";
+      cbTimerSeconds = 150;
+      cbStartTime = Date.now();
+      startCbTimer();
+      loadCbPlate(cbCurrentIndex);
+    }
+
+    function startCbTimer() {
+      if (cbTimerInterval) clearInterval(cbTimerInterval);
+      const timerElem = document.getElementById('cb-timer-display');
+      cbTimerInterval = setInterval(() => {
+        if (cbTimerSeconds <= 0) {
+          clearInterval(cbTimerInterval);
+          finishColorBlindTest("Time expired");
+          return;
+        }
+        cbTimerSeconds--;
+        const mins = Math.floor(cbTimerSeconds / 60);
+        const secs = cbTimerSeconds % 60;
+        timerElem.innerText = `${mins}:${String(secs).padStart(2, '0')}`;
+      }, 1000);
+    }
+
+    function loadCbPlate(idx) {
+      cbCurrentIndex = idx;
+      cbInputVal = cbUserAnswers[idx] || "";
+      updateCbInputDisplay();
+      document.getElementById('cb-plate-counter').innerText = `${idx + 1} / 15`;
+      renderIshiharaPlate(cbPlates[idx].correct);
+    }
+
+    function updateCbInputDisplay() {
+      document.getElementById('cb-input-display').innerText = cbInputVal;
+    }
+
+    function pressCbKey(key) {
+      if (key === 'C') {
+        cbInputVal = "";
+      } else if (key === 'DEL') {
+        cbInputVal = cbInputVal.slice(0, -1);
+      } else {
+        if (cbInputVal.length < 4) {
+          cbInputVal += key;
+        }
+      }
+      updateCbInputDisplay();
+    }
+
+    function cbOkPlate() {
+      cbUserAnswers[cbCurrentIndex] = cbInputVal;
+      if (cbCurrentIndex < 14) {
+        loadCbPlate(cbCurrentIndex + 1);
+      } else {
+        finishColorBlindTest("All questions answered");
+      }
+    }
+
+    function cbSkipPlate() {
+      cbUserAnswers[cbCurrentIndex] = ""; // Skip marks question incorrect
+      if (cbCurrentIndex < 14) {
+        loadCbPlate(cbCurrentIndex + 1);
+      } else {
+        finishColorBlindTest("All questions answered");
+      }
+    }
+
+    function cbPrevPlate() {
+      if (cbCurrentIndex > 0) {
+        cbUserAnswers[cbCurrentIndex] = cbInputVal;
+        loadCbPlate(cbCurrentIndex - 1);
+      } else {
+        if (cbTimerInterval) clearInterval(cbTimerInterval);
+        hideAllScreens();
+        document.getElementById('step-8-finish-screen').classList.remove('hidden');
+      }
+    }
+
+    function finishColorBlindTest(reason = "All questions answered") {
+      if (cbTimerInterval) clearInterval(cbTimerInterval);
+      hideAllScreens();
+      document.getElementById('step-10-color-blind-result-screen').classList.remove('hidden');
+
+      let correctCount = 0;
+      for (let i = 0; i < 15; i++) {
+        if (cbUserAnswers[i].trim() === cbPlates[i].correct) {
+          correctCount++;
+        }
+      }
+
+      const elapsedSec = Math.min(150, Math.floor((Date.now() - cbStartTime) / 1000));
+      const elMins = Math.floor(elapsedSec / 60);
+      const elSecs = elapsedSec % 60;
+
+      const badge = document.getElementById('cb-res-badge');
+      if (correctCount >= 12) {
+        badge.innerText = "PASS";
+        badge.className = "inline-block px-4 py-1.5 rounded-full text-xs font-black text-white bg-emerald-600 tracking-wider";
+      } else {
+        badge.innerText = "FAIL";
+        badge.className = "inline-block px-4 py-1.5 rounded-full text-xs font-black text-white bg-red-600 tracking-wider";
+      }
+
+      document.getElementById('cb-res-score-str').innerText = `${correctCount} / 15 correct`;
+      document.getElementById('cb-res-time-taken').innerText = `${elMins}:${String(elSecs).padStart(2, '0')} (of 2:30)`;
+      document.getElementById('cb-res-finished-by').innerText = reason;
+      const myPc = document.getElementById('waiting-pc-name') ? document.getElementById('waiting-pc-name').innerText : 'EPX_HKA01';
+      const studentPcElem = document.getElementById('cb-res-student-pc');
+      if (studentPcElem) studentPcElem.innerText = myPc;
+
+      startCbResultCountdown();
+    }
+
+    let cbResultSec = 30;
+    function startCbResultCountdown() {
+      if (cbResTimer) {
+        clearInterval(cbResTimer);
+        cbResTimer = null;
+      }
+      cbResultSec = 30;
+      const cdElem = document.getElementById('cb-res-countdown');
+      if (cdElem) cdElem.innerText = cbResultSec;
+
+      cbResTimer = setInterval(() => {
+        cbResultSec--;
+        if (cdElem) cdElem.innerText = Math.max(0, cbResultSec);
+
+        if (cbResultSec <= 0) {
+          clearInterval(cbResTimer);
+          cbResTimer = null;
+          returnToWaitingScreen();
+        }
+      }, 1000);
+    }
+
+    function retakeColorBlindTest() {
+      goToColorBlindTest();
+    }
+
+    function goToFinishScreenFromCb() {
+      if (cbResTimer) clearInterval(cbResTimer);
+      hideAllScreens();
+      document.getElementById('step-8-finish-screen').classList.remove('hidden');
+    }
+
+    // High Fidelity Ishihara Dot Matrix Generator
+    function renderIshiharaPlate(numStr) {
+      const canvas = document.getElementById('ishihara-canvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const w = canvas.width;
+      const h = canvas.height;
+      const cx = w / 2;
+      const cy = h / 2;
+      const rBound = 118;
+
+      ctx.clearRect(0, 0, w, h);
+
+      // 1. Text mask rendered in offscreen canvas
+      const off = document.createElement('canvas');
+      off.width = w;
+      off.height = h;
+      const octx = off.getContext('2d');
+      octx.fillStyle = '#ffffff';
+      octx.fillRect(0, 0, w, h);
+      octx.fillStyle = '#000000';
+      const fSize = numStr.length > 1 ? 105 : 135;
+      octx.font = `900 ${fSize}px "Noto Sans KR", Arial, sans-serif`;
+      octx.textAlign = 'center';
+      octx.textBaseline = 'middle';
+      octx.fillText(numStr, cx, cy + 4);
+
+      const mask = octx.getImageData(0, 0, w, h).data;
+
+      const bgDots = [
+        '#f97316', '#ea580c', '#fb923c', '#fdba74', '#f87171', 
+        '#ef4444', '#dc2626', '#f43f5e', '#fb7185', '#fed7aa', '#f97316'
+      ];
+      const numDots = [
+        '#3f6212', '#4d7c0f', '#65a30d', '#15803d', '#166534',
+        '#2e7d32', '#33691e', '#556b2f', '#6b8e23', '#2d6a4f'
+      ];
+
+      let seed = (parseInt(numStr, 10) * 12345) || 98765;
+      function rnd() {
+        seed = (seed * 9301 + 49297) % 233280;
+        return seed / 233280;
+      }
+
+      const step = 8;
+      for (let x = 8; x < w - 8; x += step) {
+        for (let y = 8; y < h - 8; y += step) {
+          const jx = x + (rnd() - 0.5) * 5.5;
+          const jy = y + (rnd() - 0.5) * 5.5;
+          const dx = jx - cx;
+          const dy = jy - cy;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+
+          if (dist < rBound) {
+            const px = Math.min(w - 1, Math.max(0, Math.floor(jx)));
+            const py = Math.min(h - 1, Math.max(0, Math.floor(jy)));
+            const idx = (py * w + px) * 4;
+            const isText = (mask[idx] < 128);
+
+            const dotR = 3.2 + rnd() * 4.4;
+            ctx.beginPath();
+            ctx.arc(jx, jy, dotR, 0, Math.PI * 2);
+
+            if (isText) {
+              ctx.fillStyle = numDots[Math.floor(rnd() * numDots.length)];
+            } else {
+              ctx.fillStyle = bgDots[Math.floor(rnd() * bgDots.length)];
+            }
+            ctx.fill();
+          }
+        }
+      }
+    }
+
+    // Keyboard support for Color Blind Test
+    window.addEventListener('keydown', (e) => {
+      const cbScreen = document.getElementById('step-9-color-blind-screen');
+      if (cbScreen && !cbScreen.classList.contains('hidden')) {
+        if (e.key >= '0' && e.key <= '9') {
+          pressCbKey(e.key);
+        } else if (e.key === 'Backspace') {
+          pressCbKey('DEL');
+        } else if (e.key.toLowerCase() === 'c' || e.key === 'Escape') {
+          pressCbKey('C');
+        } else if (e.key === 'Enter') {
+          cbOkPlate();
+        }
+      }
+    });
+  </script>
+</body>
+</html>

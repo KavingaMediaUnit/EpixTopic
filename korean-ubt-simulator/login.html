@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign In - EPX TOPIK Exam Platform</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;900&family=Montserrat:wght@600;700;800;900&display=swap');
+    body {
+      font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+    .brand-font {
+      font-family: 'Montserrat', sans-serif;
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-gradient-to-tr from-[#3b5bfd] via-[#8935ea] to-[#eb3889] flex flex-col items-center justify-between p-4 sm:p-6 antialiased select-none">
+
+  <!-- Empty top spacer for perfect vertical center balance -->
+  <div></div>
+
+  <!-- CENTER LOGIN CARD (Matching Screenshot 1) -->
+  <div class="w-full max-w-[420px] bg-white rounded-3xl p-8 sm:p-10 shadow-2xl text-center space-y-6 relative my-auto">
+    
+    <!-- Multi-color Triangle Logo -->
+    <div class="flex flex-col items-center">
+      <div class="w-12 h-12 rounded-xl flex items-center justify-center relative mb-2">
+        <svg class="w-12 h-12" viewBox="0 0 36 36" fill="none">
+          <polygon points="18,4 32,30 4,30" fill="#3b82f6" />
+          <polygon points="18,4 32,30 18,30" fill="#6366f1" opacity="0.85" />
+          <polygon points="18,4 10,20 4,30" fill="#f43f5e" opacity="0.9" />
+          <polygon points="18,16 26,30 12,30" fill="#fbbf24" opacity="0.95" />
+        </svg>
+      </div>
+      <h1 class="text-2xl font-black text-slate-900 tracking-tight brand-font">
+        EPX-TOPIK
+      </h1>
+      <p class="text-xs text-slate-500 font-medium mt-0.5">
+        EPS-TOPIK Exam Platform
+      </p>
+    </div>
+
+    <!-- Sign In Form -->
+    <form id="login-form" onsubmit="handleLoginSubmit(event)" class="space-y-4 text-left">
+      
+      <!-- Username Field -->
+      <div>
+        <label for="username" class="block text-xs font-bold text-slate-700 mb-1.5">
+          Username
+        </label>
+        <input type="text" id="username" required value="hanakorean"
+          class="w-full text-xs px-4 py-3 rounded-xl border border-blue-400 bg-blue-50/40 text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 transition placeholder-slate-400"
+          placeholder="Enter username">
+      </div>
+
+      <!-- Password Field -->
+      <div>
+        <label for="password" class="block text-xs font-bold text-slate-700 mb-1.5">
+          Password
+        </label>
+        <input type="password" id="password" required value="password123"
+          class="w-full text-xs px-4 py-3 rounded-xl border border-slate-200 bg-slate-50/60 text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 transition placeholder-slate-400"
+          placeholder="Enter password">
+      </div>
+
+      <!-- Remember Me & Forgot Password -->
+      <div class="flex items-center justify-between text-xs pt-0.5">
+        <label class="flex items-center gap-2 cursor-pointer text-slate-600">
+          <input type="checkbox" id="remember-me" checked class="rounded text-blue-600 focus:ring-blue-500 border-slate-300">
+          <span class="text-[11px] font-medium">Remember me</span>
+        </label>
+        <a href="javascript:void(0)" onclick="alert('Password reset instructions will be sent to your registered email.')" 
+          class="text-[11px] text-blue-600 font-semibold hover:underline">
+          Forgot password?
+        </a>
+      </div>
+
+      <!-- Sign In Button (Gradient) -->
+      <button type="submit" 
+        class="w-full py-3 px-4 rounded-xl text-white font-bold text-xs bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 active:scale-[0.98] transition shadow-lg shadow-indigo-500/25 tracking-wide">
+        Sign In
+      </button>
+
+      <!-- Quick Role Toggle Demonstration Pills -->
+      <div class="pt-2 text-center border-t border-slate-100">
+        <div class="text-[10px] text-slate-400 mb-2 font-medium">Quick Demo Sign In:</div>
+        <div class="flex items-center justify-center gap-2">
+          <button type="button" onclick="quickFill('hanakorean', 'teacher')" 
+            class="text-[10px] font-bold px-3 py-1 rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 transition">
+            👨‍🏫 Teacher Admin
+          </button>
+          <button type="button" onclick="quickFill('student_dilshan', 'student')" 
+            class="text-[10px] font-bold px-3 py-1 rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition">
+            🎓 Student UBT
+          </button>
+          <a href="developer.html" 
+            class="text-[10px] font-bold px-3 py-1 rounded-lg bg-purple-50 text-purple-700 hover:bg-purple-100 transition inline-flex items-center gap-1">
+            ⚙️ Developer
+          </a>
+        </div>
+      </div>
+
+      <!-- Register Link -->
+      <div class="text-center text-xs text-slate-600 pt-1">
+        <span>Don't have an account?</span>
+        <a href="register.html" class="text-blue-600 font-bold hover:underline ml-1">
+          Create one
+        </a>
+      </div>
+    </form>
+  </div>
+
+  <!-- Bottom Copyright -->
+  <footer class="text-[11px] text-white/80 font-medium py-3 text-center">
+    &copy; 2026 EPX-TOPIK. All rights reserved.
+  </footer>
+
+  <script>
+    function quickFill(uname, role) {
+      document.getElementById('username').value = uname;
+      document.getElementById('password').value = 'password123';
+      if (role === 'teacher') {
+        document.getElementById('username').className = "w-full text-xs px-4 py-3 rounded-xl border border-blue-400 bg-blue-50/40 text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 transition";
+      } else {
+        document.getElementById('username').className = "w-full text-xs px-4 py-3 rounded-xl border border-emerald-400 bg-emerald-50/40 text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 transition";
+      }
+    }
+
+    function handleLoginSubmit(e) {
+      e.preventDefault();
+      const u = document.getElementById('username').value.trim().toLowerCase();
+      
+      // Check registered users in localStorage
+      let registeredUsers = [];
+      try {
+        registeredUsers = JSON.parse(localStorage.getItem('epx_registered_users') || '[]');
+      } catch(err) {}
+
+      const found = registeredUsers.find(user => user.username.toLowerCase() === u);
+
+      let targetRole = 'teacher';
+      if (found) {
+        targetRole = found.role.toLowerCase();
+      } else if (u.includes('student') || u.includes('candidate') || u.includes('dilshan')) {
+        targetRole = 'student';
+      }
+
+      // Save active session
+      localStorage.setItem('epx_current_user', JSON.stringify({
+        username: u,
+        role: targetRole,
+        loginTime: new Date().toISOString()
+      }));
+
+      if (targetRole === 'teacher') {
+        window.location.href = 'admin.html';
+      } else {
+        window.location.href = 'index.html';
+      }
+    }
+  </script>
+</body>
+</html>

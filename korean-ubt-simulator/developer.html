@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Developer Platform - EPX TOPIK Core Management</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;900&family=Montserrat:wght@600;700;800;900&family=Share+Tech+Mono&display=swap');
+    body {
+      font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+    .brand-font {
+      font-family: 'Montserrat', sans-serif;
+    }
+    .mono-font {
+      font-family: 'Share Tech Mono', monospace;
+    }
+    .pulse-glow {
+      animation: pulse-glow 2s infinite;
+    }
+    @keyframes pulse-glow {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.6; transform: scale(1.04); }
+    }
+  </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col antialiased">
+
+  <!-- TOP DEVELOPER HEADER -->
+  <header class="bg-slate-950 border-b border-slate-800 px-6 py-4 flex items-center justify-between sticky top-0 z-50">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 via-rose-500 to-indigo-600 flex items-center justify-center font-black text-white text-lg brand-font shadow-lg">
+        DEV
+      </div>
+      <div>
+        <div class="flex items-center gap-2">
+          <span class="text-base font-black brand-font tracking-wider text-white">EPX TOPIK — DEVELOPER CONSOLE</span>
+          <span class="bg-amber-500/20 text-amber-400 border border-amber-500/40 text-[10px] font-bold px-2 py-0.5 rounded uppercase">Super Admin</span>
+        </div>
+        <p class="text-xs text-slate-400">Subscription & Device Provisioning Approval Center</p>
+      </div>
+    </div>
+
+    <!-- Quick Navigation Links -->
+    <div class="flex items-center gap-2.5">
+      <a href="admin.html" target="_blank" class="px-3 py-1.5 rounded-lg bg-blue-950/60 hover:bg-blue-900/60 text-blue-300 text-xs font-semibold transition flex items-center gap-1.5 border border-blue-700/60">
+        <span>👨‍🏫 Open Teacher Admin</span>
+        <span>↗</span>
+      </a>
+      <a href="index.html" target="_blank" class="px-3 py-1.5 rounded-lg bg-emerald-950/60 hover:bg-emerald-900/60 text-emerald-300 text-xs font-semibold transition flex items-center gap-1.5 border border-emerald-700/60">
+        <span>🎓 Student UBT</span>
+        <span>↗</span>
+      </a>
+      <a href="login.html" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold transition border border-slate-700">
+        🔑 Sign In
+      </a>
+    </div>
+  </header>
+
+  <!-- MAIN DEVELOPER WORKSPACE -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-6 space-y-6">
+    
+    <!-- Top System Metrics -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="bg-slate-950 p-5 rounded-2xl border border-slate-800 shadow-sm flex items-center justify-between">
+        <div>
+          <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Pending Approvals</div>
+          <div id="stat-pending-requests" class="text-3xl font-black text-amber-400 font-mono mt-1">1</div>
+          <div class="text-[11px] text-slate-500 mt-1">Awaiting developer approval</div>
+        </div>
+        <div class="w-12 h-12 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center text-xl">
+          ⏳
+        </div>
+      </div>
+
+      <div class="bg-slate-950 p-5 rounded-2xl border border-slate-800 shadow-sm flex items-center justify-between">
+        <div>
+          <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Active Teacher Labs</div>
+          <div id="stat-active-labs" class="text-3xl font-black text-emerald-400 font-mono mt-1">1</div>
+          <div class="text-[11px] text-slate-500 mt-1">15 devices provisioned</div>
+        </div>
+        <div class="w-12 h-12 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-xl">
+          💻
+        </div>
+      </div>
+
+      <div class="bg-slate-950 p-5 rounded-2xl border border-slate-800 shadow-sm flex items-center justify-between">
+        <div>
+          <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total Revenue</div>
+          <div id="stat-total-revenue" class="text-3xl font-black text-blue-400 font-mono mt-1">LKR 40,500</div>
+          <div class="text-[11px] text-slate-500 mt-1">From lab subscriptions</div>
+        </div>
+        <div class="w-12 h-12 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center text-xl">
+          💰
+        </div>
+      </div>
+
+      <div class="bg-slate-950 p-5 rounded-2xl border border-slate-800 shadow-sm flex items-center justify-between">
+        <div>
+          <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Device Quota</div>
+          <div class="text-3xl font-black text-purple-400 font-mono mt-1">15 / 20</div>
+          <div class="text-[11px] text-slate-500 mt-1">Max limit per lab</div>
+        </div>
+        <div class="w-12 h-12 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center text-xl">
+          🖥️
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ======================================================================= -->
+    <!-- SECTION 1: SUBSCRIPTION PURCHASE REQUESTS QUEUE -->
+    <!-- ======================================================================= -->
+    <div class="bg-slate-950 rounded-2xl border border-slate-800 shadow-md p-6 space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+        <div>
+          <h2 class="text-base font-bold text-white flex items-center gap-2">
+            <span>📥 Teacher Subscription & Device Payment Requests</span>
+            <span id="requests-badge-count" class="bg-amber-500/20 text-amber-400 border border-amber-500/30 text-xs px-2 py-0.5 rounded-full font-mono font-bold">1 Pending</span>
+          </h2>
+          <p class="text-xs text-slate-400 mt-0.5">
+            Review bank slip payments and approve lab device activation for Korean teachers
+          </p>
+        </div>
+
+        <button onclick="simulateTeacherPurchaseRequest()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs px-4 py-2 rounded-xl transition shadow flex items-center gap-1.5">
+          <span>+ Simulate Teacher Request (LKR 40,500)</span>
+        </button>
+      </div>
+
+      <!-- Requests Cards List Container -->
+      <div id="subscription-requests-container" class="space-y-4">
+        <!-- Dynamically rendered -->
+      </div>
+    </div>
+
+
+    <!-- ======================================================================= -->
+    <!-- SECTION 2: PROVISIONED DEVICES & TEACHER LAB ACCOUNTS -->
+    <!-- ======================================================================= -->
+    <div class="bg-slate-950 rounded-2xl border border-slate-800 shadow-md p-6 space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+        <div>
+          <h2 class="text-base font-bold text-white flex items-center gap-2">
+            <span>🖥️ Provisioned Teacher Lab Accounts (HKA_01 to HKA_15)</span>
+          </h2>
+          <p class="text-xs text-slate-400 mt-0.5">
+            Real-time device access status for <b>hanakorean (Hana Korean Academy)</b>
+          </p>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <button onclick="developerActivateAllDevices()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs px-4 py-2 rounded-xl transition shadow">
+            ✅ Force Activate All 15 PCs
+          </button>
+          <button onclick="developerDeactivateAllDevices()" class="bg-red-900/60 hover:bg-red-800 text-red-300 font-bold text-xs px-4 py-2 rounded-xl transition border border-red-700/50">
+            ⛔ Deactivate All PCs
+          </button>
+        </div>
+      </div>
+
+      <!-- Device Accounts Grid Table -->
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs border-collapse">
+          <thead class="text-slate-400 uppercase text-[10px] font-bold tracking-wider border-b border-slate-800">
+            <tr>
+              <th class="py-3 px-4">Device Account</th>
+              <th class="py-3 px-4">Assigned Institute</th>
+              <th class="py-3 px-4">Status</th>
+              <th class="py-3 px-4">Activated Date</th>
+              <th class="py-3 px-4">Expiration Date</th>
+              <th class="py-3 px-4 text-right">Developer Controls</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-800/80" id="dev-devices-tbody">
+            <!-- Populated dynamically -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- DEVELOPER LOGIC CORE -->
+  <script>
+    const examBus = ('BroadcastChannel' in window) ? new BroadcastChannel('epx_topik_bus') : null;
+
+    // Load or default subscription requests
+    let subscriptionRequests = [];
+
+    function initSubscriptionData() {
+      try {
+        const stored = localStorage.getItem('epx_subscription_requests');
+        if (stored) {
+          subscriptionRequests = JSON.parse(stored);
+        }
+      } catch(e) {}
+
+      // If empty, provide the sample request matching user's screenshot!
+      if (subscriptionRequests.length === 0) {
+        subscriptionRequests = [
+          {
+            id: 'REQ-2026-9901',
+            teacherUsername: 'hanakorean',
+            instituteName: 'Hana Korean Academy',
+            packageDuration: '3 mo (90 days)',
+            deviceCount: 15,
+            devices: ['HKA_01', 'HKA_02', 'HKA_03', 'HKA_04', 'HKA_05', 'HKA_06', 'HKA_07', 'HKA_08', 'HKA_09', 'HKA_10', 'HKA_11', 'HKA_12', 'HKA_13', 'HKA_14', 'HKA_15'],
+            ratePerMonth: 900,
+            totalAmount: 40500,
+            bankName: 'Bank of Ceylon',
+            referenceNo: 'BOC-49201948',
+            contactName: 'Dilshan Perera',
+            contactPhone: '+94 77 123 4567',
+            status: 'pending',
+            date: '2026-10-08',
+            expiresDate: '2027-04-06'
+          }
+        ];
+        saveRequests();
+      }
+
+      renderRequests();
+      renderDevDevices();
+      updateMetrics();
+    }
+
+    function saveRequests() {
+      localStorage.setItem('epx_subscription_requests', JSON.stringify(subscriptionRequests));
+    }
+
+    function renderRequests() {
+      const container = document.getElementById('subscription-requests-container');
+      if (!container) return;
+      container.innerHTML = '';
+
+      const pending = subscriptionRequests.filter(r => r.status === 'pending');
+      document.getElementById('requests-badge-count').innerText = `${pending.length} Pending`;
+      document.getElementById('stat-pending-requests').innerText = String(pending.length);
+
+      if (subscriptionRequests.length === 0) {
+        container.innerHTML = `
+          <div class="py-12 text-center text-xs text-slate-500">
+            No subscription requests found. Click "+ Simulate Teacher Request" above to test.
+          </div>
+        `;
+        return;
+      }
+
+      subscriptionRequests.forEach(req => {
+        const isPending = req.status === 'pending';
+        const card = document.createElement('div');
+        card.className = `p-5 rounded-2xl border transition ${isPending ? 'bg-slate-900 border-amber-500/40 shadow-lg' : 'bg-slate-950/60 border-slate-800 opacity-80'}`;
+        
+        card.innerHTML = `
+          <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+            
+            <div class="space-y-2 flex-1">
+              <div class="flex items-center gap-3">
+                <span class="font-mono font-bold text-xs text-slate-400">#${req.id}</span>
+                <span class="font-bold text-white text-sm">${req.instituteName} (${req.teacherUsername})</span>
+                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase ${isPending ? 'bg-amber-500/20 text-amber-400 border border-amber-500/40' : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40'}">
+                  ${isPending ? '⏳ Pending Approval' : '✅ Approved & Active'}
+                </span>
+              </div>
+
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs text-slate-300">
+                <div>
+                  <span class="text-slate-500 block text-[10px]">Package:</span>
+                  <span class="font-bold text-white">${req.packageDuration}</span>
+                </div>
+                <div>
+                  <span class="text-slate-500 block text-[10px]">Devices:</span>
+                  <span class="font-bold text-white">${req.deviceCount} PCs (${req.devices[0]} ~ ${req.devices[req.devices.length-1]})</span>
+                </div>
+                <div>
+                  <span class="text-slate-500 block text-[10px]">Payment Amount:</span>
+                  <span class="font-black text-blue-400 font-mono text-sm">LKR ${req.totalAmount.toLocaleString()}.00</span>
+                </div>
+                <div>
+                  <span class="text-slate-500 block text-[10px]">Bank / Slip Ref:</span>
+                  <span class="font-bold text-slate-300">${req.bankName} (${req.referenceNo})</span>
+                </div>
+              </div>
+
+              <div class="text-[11px] text-slate-400">
+                Contact: <b class="text-slate-300">${req.contactName}</b> (${req.contactPhone}) &bull; Date: ${req.date}
+              </div>
+            </div>
+
+            <!-- Action Controls -->
+            <div class="flex items-center gap-2.5 shrink-0">
+              ${isPending ? `
+                <button onclick="approveSubscriptionRequest('${req.id}')" 
+                  class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs px-5 py-2.5 rounded-xl shadow-lg transition active:scale-95 flex items-center gap-1.5 pulse-glow">
+                  <span>✅ Approve & Activate ${req.deviceCount} Devices</span>
+                </button>
+                <button onclick="rejectSubscriptionRequest('${req.id}')" 
+                  class="bg-slate-800 hover:bg-red-950 text-slate-400 hover:text-red-400 font-bold text-xs px-3.5 py-2.5 rounded-xl transition border border-slate-700">
+                  Reject
+                </button>
+              ` : `
+                <span class="text-xs text-emerald-400 font-bold flex items-center gap-1">
+                  <span>✓ Activated on ${req.expiresDate}</span>
+                </span>
+                <button onclick="reApproveSubscription('${req.id}')" class="text-[11px] text-blue-400 hover:underline">
+                  Re-sync
+                </button>
+              `}
+            </div>
+
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    // DEVELOPER APPROVES TEACHER REQUEST
+    function approveSubscriptionRequest(reqId) {
+      const req = subscriptionRequests.find(r => r.id === reqId);
+      if (!req) return;
+
+      req.status = 'approved';
+      saveRequests();
+
+      // Update Teacher Lab Package state in localStorage
+      const activePackage = {
+        active: true,
+        expiresDate: '06 Apr 2027',
+        daysLeft: 177,
+        deviceCount: req.deviceCount,
+        teacherUsername: req.teacherUsername,
+        updatedAt: new Date().toISOString()
+      };
+      localStorage.setItem('epx_lab_package', JSON.stringify(activePackage));
+
+      // Provision active devices list
+      const devices = [];
+      for (let i = 1; i <= req.deviceCount; i++) {
+        const pcNum = String(i).padStart(2, '0');
+        devices.push({
+          username: `HKA_${pcNum}`,
+          status: 'Active',
+          activated: '08 Oct 2026',
+          expires: '06 Apr 2027'
+        });
+      }
+      localStorage.setItem('epx_lab_devices', JSON.stringify(devices));
+
+      // Broadcast event to Teacher Admin
+      if (examBus) {
+        examBus.postMessage({
+          type: 'SUBSCRIPTION_APPROVED',
+          package: activePackage,
+          devices: devices,
+          timestamp: Date.now()
+        });
+      }
+      localStorage.setItem('epx_developer_command', JSON.stringify({
+        action: 'SUBSCRIPTION_APPROVED',
+        package: activePackage,
+        timestamp: Date.now()
+      }));
+
+      renderRequests();
+      renderDevDevices();
+      updateMetrics();
+
+      alert(`✅ Subscription Request Approved!\n- Teacher: ${req.teacherUsername}\n- Devices: ${req.deviceCount} PCs (HKA_01 to HKA_${req.deviceCount})\n- Expiry: 06 Apr 2027\n\nTeacher Admin page (admin.html) is now active with all 15 devices!`);
+    }
+
+    function rejectSubscriptionRequest(reqId) {
+      if (!confirm('Reject this subscription request?')) return;
+      subscriptionRequests = subscriptionRequests.filter(r => r.id !== reqId);
+      saveRequests();
+      renderRequests();
+      updateMetrics();
+    }
+
+    function simulateTeacherPurchaseRequest() {
+      const randId = `REQ-2026-${Math.floor(1000 + Math.random() * 9000)}`;
+      subscriptionRequests.unshift({
+        id: randId,
+        teacherUsername: 'hanakorean',
+        instituteName: 'Hana Korean Academy',
+        packageDuration: '3 mo (90 days)',
+        deviceCount: 15,
+        devices: ['HKA_01', 'HKA_02', 'HKA_03', 'HKA_04', 'HKA_05', 'HKA_06', 'HKA_07', 'HKA_08', 'HKA_09', 'HKA_10', 'HKA_11', 'HKA_12', 'HKA_13', 'HKA_14', 'HKA_15'],
+        ratePerMonth: 900,
+        totalAmount: 40500,
+        bankName: 'Bank of Ceylon',
+        referenceNo: `BOC-${Math.floor(10000000 + Math.random() * 90000000)}`,
+        contactName: 'Dilshan Perera',
+        contactPhone: '+94 77 123 4567',
+        status: 'pending',
+        date: new Date().toISOString().split('T')[0],
+        expiresDate: '2027-04-06'
+      });
+      saveRequests();
+      renderRequests();
+      updateMetrics();
+      alert("New simulated Teacher Subscription Request added to queue!");
+    }
+
+    function renderDevDevices() {
+      const tbody = document.getElementById('dev-devices-tbody');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+
+      let devices = [];
+      try {
+        devices = JSON.parse(localStorage.getItem('epx_lab_devices') || '[]');
+      } catch(e) {}
+
+      if (devices.length === 0) {
+        for (let i = 1; i <= 15; i++) {
+          const pcNum = String(i).padStart(2, '0');
+          devices.push({
+            username: `HKA_${pcNum}`,
+            status: 'Active',
+            activated: '08 Oct 2026',
+            expires: '06 Apr 2027'
+          });
+        }
+      }
+
+      devices.forEach(d => {
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-slate-900/60 transition";
+        tr.innerHTML = `
+          <td class="py-3 px-4 font-mono font-bold text-white">${d.username}</td>
+          <td class="py-3 px-4 font-medium text-slate-300">Hana Korean Academy</td>
+          <td class="py-3 px-4">
+            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ${d.status === 'Active' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-red-500/20 text-red-400 border border-red-500/30'}">
+              ${d.status}
+            </span>
+          </td>
+          <td class="py-3 px-4 font-mono text-slate-400">${d.activated}</td>
+          <td class="py-3 px-4 font-mono text-slate-300 font-bold">${d.expires}</td>
+          <td class="py-3 px-4 text-right">
+            <button onclick="toggleDeviceStatus('${d.username}')" class="px-2.5 py-1 text-[11px] rounded bg-slate-800 hover:bg-slate-700 text-slate-300 mr-1">
+              Toggle Status
+            </button>
+            <button onclick="alert('Password for ${d.username} reset to default: 1234')" class="px-2.5 py-1 text-[11px] rounded bg-slate-800 hover:bg-slate-700 text-slate-300">
+              Reset Pwd
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function toggleDeviceStatus(uname) {
+      let devices = JSON.parse(localStorage.getItem('epx_lab_devices') || '[]');
+      const dev = devices.find(d => d.username === uname);
+      if (dev) {
+        dev.status = (dev.status === 'Active') ? 'Deactivated' : 'Active';
+        localStorage.setItem('epx_lab_devices', JSON.stringify(devices));
+        renderDevDevices();
+      }
+    }
+
+    function developerActivateAllDevices() {
+      let devices = [];
+      for (let i = 1; i <= 15; i++) {
+        const pcNum = String(i).padStart(2, '0');
+        devices.push({
+          username: `HKA_${pcNum}`,
+          status: 'Active',
+          activated: '08 Oct 2026',
+          expires: '06 Apr 2027'
+        });
+      }
+      localStorage.setItem('epx_lab_devices', JSON.stringify(devices));
+      localStorage.setItem('epx_lab_package', JSON.stringify({
+        active: true,
+        expiresDate: '06 Apr 2027',
+        daysLeft: 177,
+        deviceCount: 15
+      }));
+      renderDevDevices();
+      alert('All 15 PC Accounts activated successfully!');
+    }
+
+    function developerDeactivateAllDevices() {
+      let devices = [];
+      for (let i = 1; i <= 15; i++) {
+        const pcNum = String(i).padStart(2, '0');
+        devices.push({
+          username: `HKA_${pcNum}`,
+          status: 'Deactivated',
+          activated: '08 Oct 2026',
+          expires: '06 Apr 2027'
+        });
+      }
+      localStorage.setItem('epx_lab_devices', JSON.stringify(devices));
+      renderDevDevices();
+      alert('All 15 PC Accounts marked as Deactivated.');
+    }
+
+    function updateMetrics() {
+      const rev = subscriptionRequests.reduce((acc, cur) => cur.status === 'approved' ? acc + cur.totalAmount : acc, 0);
+      document.getElementById('stat-total-revenue').innerText = `LKR ${rev.toLocaleString()}`;
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      initSubscriptionData();
+    });
+  </script>
+</body>
+</html>
